@@ -1,8 +1,4 @@
-/**
- * Componente Raiz da Aplicação (AppComponent)
- * Renderiza a barra de navegação e o outlet das rotas filhas
- */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
@@ -11,28 +7,35 @@ import { filter } from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrls:   ['./app.component.css'],
 })
-export class AppComponent {
-  titulo = 'Ralo Tracker';
+export class AppComponent implements OnInit {
+  sidebarCollapsed  = false;
+  menuMobileAberto  = false;
 
-  // Controla se o menu mobile está aberto
-  menuAberto = false;
+  constructor(private router: Router) {}
 
-  constructor(private router: Router) {
-    // Fecha o menu ao navegar para outra rota
+  ngOnInit(): void {
+    // Fecha o menu mobile ao navegar
     this.router.events
-      .pipe(filter(evento => evento instanceof NavigationEnd))
+      .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
-        this.menuAberto = false;
+        this.menuMobileAberto = false;
+        const sidebar = document.querySelector('.sidebar');
+        sidebar?.classList.remove('mobile-open');
       });
+
+    // Restaura estado do sidebar do localStorage
+    const saved = localStorage.getItem('kua_sidebar_collapsed');
+    if (saved !== null) this.sidebarCollapsed = saved === 'true';
   }
 
-  // Alterna o menu mobile
-  alternarMenu(): void {
-    this.menuAberto = !this.menuAberto;
+  alternarSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+    localStorage.setItem('kua_sidebar_collapsed', String(this.sidebarCollapsed));
   }
 
-  // Navega para nova assinatura
-  irParaNovaAssinatura(): void {
-    this.router.navigate(['/nova-assinatura']);
+  alternarMenuMobile(): void {
+    this.menuMobileAberto = !this.menuMobileAberto;
+    const sidebar = document.querySelector('.sidebar');
+    sidebar?.classList.toggle('mobile-open', this.menuMobileAberto);
   }
 }

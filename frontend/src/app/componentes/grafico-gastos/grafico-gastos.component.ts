@@ -1,7 +1,3 @@
-/**
- * Componente Gráfico de Gastos
- * Gráfico de rosca futurista com gradientes, plugin de texto central e animações suaves.
- */
 import {
   Component,
   Input,
@@ -14,11 +10,10 @@ import {
 } from '@angular/core';
 import { Chart, ChartConfiguration, registerables, Plugin } from 'chart.js';
 
-import { COR_POR_CATEGORIA } from '../../modelos/assinatura.model';
+import { Assinatura, COR_POR_CATEGORIA, getLogoUrl } from '../../modelos/assinatura.model';
 
 Chart.register(...registerables);
 
-// ── Plugin: texto no centro da rosca ──────────────────────────
 const pluginCentro: Plugin<'doughnut'> = {
   id: 'pluginCentro',
   afterDraw(chart) {
@@ -33,44 +28,48 @@ const pluginCentro: Plugin<'doughnut'> = {
     const total = (dataset.data as number[])
       .reduce((acc, v) => acc + (Number(v) || 0), 0);
 
-    const formatado = total.toLocaleString('pt-BR', {
+    const selecionado = (chart as any)._categoriaAtiva as string | null;
+    const labelTop = selecionado ? selecionado.toUpperCase() : 'MENSAL';
+
+    let valorExibir = total;
+    if (selecionado) {
+      const idx = (chart.data.labels as string[]).indexOf(selecionado);
+      if (idx >= 0) valorExibir = Number(dataset.data[idx]) || 0;
+    }
+
+    const formatado = valorExibir.toLocaleString('pt-BR', {
       style: 'currency', currency: 'BRL',
     });
 
     ctx.save();
-
-    // Label "MENSAL"
     ctx.font = '600 10px Inter, sans-serif';
-    ctx.fillStyle = '#4a7a9b';
+    ctx.fillStyle = selecionado ? '#22d3ee' : '#4a7a9b';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('MENSAL', cx, cy - 13);
+    ctx.fillText(labelTop, cx, cy - 13);
 
-    // Valor total com gradiente
     const grad = ctx.createLinearGradient(cx - 40, 0, cx + 40, 0);
-    grad.addColorStop(0, '#3b82f6');
-    grad.addColorStop(1, '#00d4ff');
+    grad.addColorStop(0, selecionado ? '#22d3ee' : '#3b82f6');
+    grad.addColorStop(1, selecionado ? '#67e8f9' : '#00d4ff');
 
     ctx.font = '800 15px Inter, sans-serif';
     ctx.fillStyle = grad;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(formatado, cx, cy + 7);
-
     ctx.restore();
   },
 };
 
-// Paleta futurista: cada categoria tem cor base + versão clara para hover
 const PALETA: Record<string, [string, string]> = {
-  Streaming:  ['#a855f7', '#c084fc'],
-  IA:         ['#00d4ff', '#67e8f9'],
-  Educação:   ['#00e5a0', '#6ee7b7'],
-  Software:   ['#f59e0b', '#fcd34d'],
-  Jogos:      ['#ff4d6a', '#ff8fa3'],
-  Saúde:      ['#f472b6', '#f9a8d4'],
-  Finanças:   ['#14b8a6', '#5eead4'],
-  Outros:     ['#4a7a9b', '#7ba8cc'],
+  Streaming: ['#a855f7', '#c084fc'],
+  IA:        ['#00d4ff', '#67e8f9'],
+  Educação:  ['#00e5a0', '#6ee7b7'],
+  Software:  ['#f59e0b', '#fcd34d'],
+  Jogos:     ['#ff4d6a', '#ff8fa3'],
+  Saúde:     ['#f472b6', '#f9a8d4'],
+  Finanças:  ['#14b8a6', '#5eead4'],
+  Outros:    ['#4a7a9b', '#7ba8cc'],
 };
 
 @Component({
@@ -81,10 +80,25 @@ const PALETA: Record<string, [string, string]> = {
 export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   @Input() gastosPorCategoria: { [categoria: string]: number } = {};
+  @Input() assinaturas: Assinatura[] = [];
 
   @ViewChild('canvasGrafico') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private grafico: Chart<'doughnut'> | null = null;
+
+  segmentoAtivo: string | null = null;
+
+  get assinaturasDaCategoria(): Assinatura[] {
+    if (!this.segmentoAtivo) return [];
+    return this.assinaturas.filter(a => a.categoria === this.segmentoAtivo && a.ativo);
+  }
+
+  get percentualCategoria(): string {
+    if (!this.segmentoAtivo) return '0';
+    const total = Object.values(this.gastosPorCategoria).reduce((a, b) => a + b, 0);
+    const val   = this.gastosPorCategoria[this.segmentoAtivo] || 0;
+    return total > 0 ? ((val / total) * 100).toFixed(1) : '0';
+  }
 
   ngAfterViewInit(): void {
     this.criarOuAtualizarGrafico();
@@ -92,6 +106,7 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['gastosPorCategoria'] && !changes['gastosPorCategoria'].firstChange) {
+      this.segmentoAtivo = null;
       this.criarOuAtualizarGrafico();
     }
   }
@@ -100,15 +115,45 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
     this.destruirGrafico();
   }
 
+  fecharDetalhe(): void {
+    this.segmentoAtivo = null;
+    this.atualizarOffsets();
+  }
+
+  valorMensal(a: Assinatura): number {
+    const v = Number(a.valor) || 0;
+    return a.ciclo_cobranca === 'Mensal' ? v : v / 12;
+  }
+
+  formatarMoeda(v: number): string {
+    return (Number(v) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  logoUrl(nome: string): string { return getLogoUrl(nome); }
+  logoErro(img: HTMLImageElement): void { img.style.display = 'none'; }
+
+  corSegmento(cat: string): string {
+    return PALETA[cat]?.[0] ?? COR_POR_CATEGORIA[cat] ?? '#4a7a9b';
+  }
+
+  private atualizarOffsets(): void {
+    if (!this.grafico) return;
+    const cats = this.grafico.data.labels as string[];
+    (this.grafico.data.datasets[0] as any).offset =
+      cats.map(c => c === this.segmentoAtivo ? 18 : 0);
+    (this.grafico as any)._categoriaAtiva = this.segmentoAtivo;
+    this.grafico.update('active');
+  }
+
   private criarOuAtualizarGrafico(): void {
     if (!this.canvasRef) return;
 
     const categorias = Object.keys(this.gastosPorCategoria);
     const valores    = Object.values(this.gastosPorCategoria).map(v => Number(v) || 0);
 
-    const coresFundo  = categorias.map(c => (PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b') + 'bb');
-    const coresBorda  = categorias.map(c =>  PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b');
-    const coresHover  = categorias.map(c =>  PALETA[c]?.[1] ?? COR_POR_CATEGORIA[c] ?? '#7ba8cc');
+    const coresFundo = categorias.map(c => (PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b') + 'bb');
+    const coresBorda = categorias.map(c =>  PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b');
+    const coresHover = categorias.map(c =>  PALETA[c]?.[1] ?? COR_POR_CATEGORIA[c] ?? '#7ba8cc');
 
     this.destruirGrafico();
 
@@ -124,19 +169,30 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
           hoverBackgroundColor: coresHover,
           borderWidth:          2,
           hoverBorderWidth:     3,
-          hoverOffset:          10,
+          hoverOffset:          6,
           borderAlign:          'inner',
-        }],
+          offset:               new Array(categorias.length).fill(0),
+        } as any],
       },
       options: {
         responsive:          true,
         maintainAspectRatio: true,
         cutout:              '68%',
         animation: {
-          animateRotate:  true,
-          animateScale:   true,
-          duration:       900,
-          easing:         'easeInOutQuart',
+          animateRotate: true,
+          animateScale:  true,
+          duration:      900,
+          easing:        'easeInOutQuart',
+        },
+        onClick: (_evt, elements) => {
+          if (elements.length === 0) {
+            this.segmentoAtivo = null;
+          } else {
+            const idx = elements[0].index;
+            const cat = categorias[idx];
+            this.segmentoAtivo = this.segmentoAtivo === cat ? null : cat;
+          }
+          this.atualizarOffsets();
         },
         plugins: {
           legend: {
@@ -188,6 +244,7 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
                 const pct   = total > 0 ? ((valor / total) * 100).toFixed(1) : '0.0';
                 return `  ${fmt}  —  ${pct}%`;
               },
+              afterLabel: () => '  Clique para ver detalhes',
             },
           },
         },
@@ -195,6 +252,7 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
     };
 
     this.grafico = new Chart(this.canvasRef.nativeElement, config);
+    (this.grafico as any)._categoriaAtiva = null;
   }
 
   private destruirGrafico(): void {

@@ -1,0 +1,116 @@
+<div class="relatorios-wrapper">
+
+  <div class="cabecalho-pagina reveal-item" style="--delay:.05s">
+    <div>
+      <h1 class="titulo-pagina">Relatórios</h1>
+      <p class="subtitulo-pagina">Análise de gastos, tendências e insights financeiros</p>
+    </div>
+  </div>
+
+  <div *ngIf="carregando" class="carregando-center"><div class="spinner"></div></div>
+
+  <ng-container *ngIf="!carregando && !mensagemErro">
+
+    <!-- ── KPIs ──────────────────────────────────────────── -->
+    <div class="grade-kpi reveal-item" style="--delay:.10s">
+
+      <div class="kpi-card glass-card">
+        <span class="kpi-label">Gasto Mensal</span>
+        <span class="kpi-value cyan">{{ formatarMoeda(custoMensalTotal) }}</span>
+        <span class="kpi-desc">{{ assinaturas.length }} assinaturas ativas</span>
+      </div>
+
+      <div class="kpi-card glass-card">
+        <span class="kpi-label">Projeção Anual</span>
+        <span class="kpi-value indigo">{{ formatarMoeda(custoAnualTotal) }}</span>
+        <span class="kpi-desc">se mantiver os serviços atuais</span>
+      </div>
+
+      <div class="kpi-card glass-card">
+        <span class="kpi-label">Gasto Est. Anual</span>
+        <span class="kpi-value emerald">{{ formatarMoeda(totalGastoEstimado) }}</span>
+        <span class="kpi-desc">estimativa de 12 meses</span>
+      </div>
+
+      <div class="kpi-card glass-card">
+        <span class="kpi-label">Custo Médio</span>
+        <span class="kpi-value amber">{{ formatarMoeda(assinaturas.length > 0 ? custoMensalTotal / assinaturas.length : 0) }}</span>
+        <span class="kpi-desc">por assinatura / mês</span>
+      </div>
+
+    </div>
+
+    <!-- ── Gráfico de Tendência ───────────────────────────── -->
+    <div class="glass-card chart-section reveal-item" style="--delay:.15s">
+      <div class="chart-header">
+        <div>
+          <h2 class="chart-title">Tendência de Gastos</h2>
+          <p class="chart-desc">Evolução estimada dos últimos 6 meses</p>
+        </div>
+        <div class="trend-badge">
+          <span class="trend-up">↑ crescendo</span>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas #canvasBar></canvas>
+      </div>
+    </div>
+
+    <!-- ── Layout 2 colunas: Top 5 + Categorias ─────────── -->
+    <div class="layout-2col">
+
+      <!-- Top 5 Assinaturas -->
+      <div class="glass-card reveal-item" style="--delay:.20s; padding: 1.25rem;">
+        <h2 class="section-title">Top 5 Mais Caras</h2>
+
+        <div class="top5-list">
+          <div *ngFor="let a of top5; let i = index" class="top5-item">
+
+            <div class="top5-rank" [style.color]="i < 3 ? '#22d3ee' : '#4a7a9b'">
+              {{ i + 1 }}
+            </div>
+
+            <div class="top5-logo" [style.border-color]="corCategoria(a.categoria) + '44'">
+              <img *ngIf="logoUrl(a.nome)" [src]="logoUrl(a.nome)" [alt]="a.nome"
+                   class="top5-logo-img" (error)="$any($event.target).style.display='none'">
+              <span [style.color]="corCategoria(a.categoria)" style="font-size:.7rem;font-weight:700">
+                {{ a.nome.charAt(0) }}
+              </span>
+            </div>
+
+            <div class="top5-info">
+              <span class="top5-nome">{{ a.nome }}</span>
+              <span class="top5-cat" [style.color]="corCategoria(a.categoria)">
+                {{ a.categoria }}
+              </span>
+            </div>
+
+            <div class="top5-valores">
+              <span class="top5-valor">{{ formatarMoeda(valorMensal(a)) }}</span>
+              <span class="top5-pct">{{ percentual(a).toFixed(0) }}%</span>
+            </div>
+
+            <!-- Barra de progresso -->
+            <div class="top5-bar-track">
+              <div class="top5-bar-fill"
+                   [style.width]="percentual(a) + '%'"
+                   [style.background]="corCategoria(a.categoria)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico de Categorias -->
+      <div class="glass-card reveal-item" style="--delay:.25s; padding: 1.25rem;">
+        <h2 class="section-title">Por Categoria</h2>
+        <div class="cat-chart-wrap">
+          <canvas #canvasCat></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

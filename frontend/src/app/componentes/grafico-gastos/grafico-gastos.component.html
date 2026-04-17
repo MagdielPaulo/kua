@@ -1,12 +1,9 @@
-<!-- Gráfico de Gastos por Categoria -->
-
 <div class="grafico-card card" *ngIf="temDados; else semDados">
 
-  <!-- Cabeçalho do gráfico -->
   <div class="grafico-header">
     <div>
       <h3 class="grafico-titulo">Distribuição de Gastos</h3>
-      <p class="grafico-subtitulo">{{ quantidadeCategorias }} categorias · mensal</p>
+      <p class="grafico-subtitulo">{{ quantidadeCategorias }} categorias · clique para detalhar</p>
     </div>
     <div class="grafico-total-badge">
       <span class="total-label">total</span>
@@ -14,14 +11,43 @@
     </div>
   </div>
 
-  <!-- Canvas -->
   <div class="grafico-area">
     <canvas #canvasGrafico></canvas>
   </div>
 
+  <!-- Painel de detalhes da categoria selecionada -->
+  <div class="detalhe-categoria" *ngIf="segmentoAtivo">
+    <div class="detalhe-header">
+      <div class="detalhe-titulo-wrap">
+        <span class="detalhe-dot" [style.background]="corSegmento(segmentoAtivo)"></span>
+        <span class="detalhe-titulo">{{ segmentoAtivo }}</span>
+        <span class="detalhe-pct">{{ percentualCategoria }}% do total</span>
+      </div>
+      <button class="detalhe-fechar" (click)="fecharDetalhe()" title="Fechar">✕</button>
+    </div>
+
+    <div class="detalhe-lista">
+      <div class="detalhe-item" *ngFor="let a of assinaturasDaCategoria">
+        <div class="detalhe-logo-wrap">
+          <img class="detalhe-logo"
+               [src]="logoUrl(a.nome)"
+               [alt]="a.nome"
+               (error)="logoErro($any($event.target))">
+          <span class="detalhe-logo-fallback">{{ a.nome.charAt(0) }}</span>
+        </div>
+        <span class="detalhe-nome">{{ a.nome }}</span>
+        <span class="detalhe-ciclo">{{ a.ciclo_cobranca === 'Mensal' ? '/mês' : '/ano' }}</span>
+        <span class="detalhe-valor">{{ formatarMoeda(valorMensal(a)) }}<small>/mês</small></span>
+      </div>
+
+      <div *ngIf="assinaturasDaCategoria.length === 0" class="detalhe-vazio">
+        Nenhuma assinatura ativa nesta categoria.
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- Estado vazio -->
 <ng-template #semDados>
   <div class="card grafico-vazio">
     <span class="grafico-vazio-icone">📊</span>

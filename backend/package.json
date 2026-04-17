@@ -1,7 +1,7 @@
 {
-  "name": "ralo-tracker-backend",
+  "name": "kua-backend",
   "version": "1.0.0",
-  "description": "API RESTful do Ralo Tracker - Gerenciador de assinaturas e free trials",
+  "description": "API RESTful do Kua - Gerenciador de assinaturas e free trials",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

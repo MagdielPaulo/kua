@@ -9,7 +9,7 @@ require('dotenv').config();
 const pool = new Pool({
   host:     process.env.DB_HOST     || 'localhost',
   port:     parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NOME     || 'ralo_tracker',
+  database: process.env.DB_NOME     || 'kua',
   user:     process.env.DB_USUARIO  || 'postgres',
   password: process.env.DB_SENHA    || '',
   max:                20,    // Número máximo de conexões simultâneas no pool

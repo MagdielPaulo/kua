@@ -1,6 +1,6 @@
-#  Ralo Tracker
+# Kua
 
-Gerencie, visualize e controle seus gastos com assinaturas recorrentes e free trials. Nunca mais deixe dinheiro escorrer pelo ralo.
+Gerencie, visualize e controle seus gastos com assinaturas recorrentes e free trials.
 
 ## Funcionalidades
 
@@ -16,20 +16,20 @@ Gerencie, visualize e controle seus gastos com assinaturas recorrentes e free tr
 
 ## Stack
 
-| Camada        | Tecnologia                        |
-|---------------|-----------------------------------|
-| Frontend      | Angular 16 + TypeScript + CSS     |
-| Gráficos      | Chart.js 4                        |
-| Backend       | Node.js + Express                 |
-| Banco de Dados| PostgreSQL                        |
-| API           | REST (JSON)                       |
+| Camada         | Tecnologia                    |
+|----------------|-------------------------------|
+| Frontend       | Angular 16 + TypeScript + CSS |
+| Gráficos       | Chart.js 4                    |
+| Backend        | Node.js + Express             |
+| Banco de Dados | PostgreSQL                    |
+| API            | REST (JSON)                   |
 
 ---
 
 ## Estrutura do Projeto
 
 ```
-ralo-tracker/
+kua/
 ├── backend/
 │   ├── config/
 │   │   └── banco.js                  # Conexão PostgreSQL (Pool)
@@ -75,10 +75,10 @@ ralo-tracker/
 
 ```bash
 # Crie o banco de dados no PostgreSQL
-psql -U postgres -c "CREATE DATABASE ralo_tracker;"
+psql -U postgres -c "CREATE DATABASE kua;"
 
 # Execute a migração (cria tabela e insere dados de exemplo)
-psql -U postgres -d ralo_tracker -f backend/migrations/criar_tabelas.sql
+psql -U postgres -d kua -f backend/migrations/criar_tabelas.sql
 ```
 
 ---
@@ -126,27 +126,27 @@ A aplicação abrirá em `http://localhost:4200`.
 
 ## Endpoints da API
 
-| Método | Endpoint                   | Descrição                          |
-|--------|----------------------------|------------------------------------|
-| GET    | `/api/assinaturas`         | Lista todas as assinaturas         |
-| GET    | `/api/assinaturas/:id`     | Busca uma assinatura por ID        |
-| POST   | `/api/assinaturas`         | Cria uma nova assinatura           |
-| PUT    | `/api/assinaturas/:id`     | Atualiza uma assinatura existente  |
-| DELETE | `/api/assinaturas/:id`     | Remove uma assinatura              |
-| GET    | `/api/saude`               | Verifica saúde do servidor         |
+| Método | Endpoint               | Descrição                         |
+|--------|------------------------|-----------------------------------|
+| GET    | `/api/assinaturas`     | Lista todas as assinaturas        |
+| GET    | `/api/assinaturas/:id` | Busca uma assinatura por ID       |
+| POST   | `/api/assinaturas`     | Cria uma nova assinatura          |
+| PUT    | `/api/assinaturas/:id` | Atualiza uma assinatura existente |
+| DELETE | `/api/assinaturas/:id` | Remove uma assinatura             |
+| GET    | `/api/saude`           | Verifica saúde do servidor        |
 
 ### Exemplo de Payload (POST/PUT)
 
 ```json
 {
-  "nome":            "Netflix",
-  "categoria":       "Streaming",
-  "valor":           39.90,
-  "ciclo_cobranca":  "Mensal",
-  "data_renovacao":  15,
-  "is_trial":        false,
-  "data_fim_trial":  null,
-  "ativo":           true
+  "nome":           "Netflix",
+  "categoria":      "Streaming",
+  "valor":          39.90,
+  "ciclo_cobranca": "Mensal",
+  "data_renovacao": 15,
+  "is_trial":       false,
+  "data_fim_trial": null,
+  "ativo":          true
 }
 ```
 
@@ -154,45 +154,29 @@ A aplicação abrirá em `http://localhost:4200`.
 
 ## Categorias Suportadas
 
-| Categoria                 | Exemplos de serviços                              |
-|---------------------------|---------------------------------------------------|
-| Streaming                 | Netflix, Spotify, Amazon Prime, Max, Disney+      |
-| Inteligência Artificial   | ChatGPT Plus, Midjourney, Claude Pro              |
-| Educação e Idiomas        | Duolingo Super, Alura, QConcursos, Rocketseat     |
-| Softwares/Ferramentas     | Adobe CC, Notion, Google One, GitHub Copilot      |
-| Jogos                     | Xbox Game Pass, PlayStation Plus, EA Play         |
-| Saúde e Bem-estar         | Gympass, Headspace, Calm                          |
-| Finanças                  | Serviços financeiros e de investimento            |
-| Outros                    | Qualquer serviço não categorizado acima           |
-
----
-
-## Deploy na AWS (Sugestão)
-
-### Frontend → Amazon S3 + CloudFront
-```bash
-# Build de produção
-cd frontend
-ng build --configuration production
-
-# Envie a pasta dist/ para um bucket S3 com hospedagem estática
-aws s3 sync dist/ralo-tracker-frontend/ s3://seu-bucket-ralo-tracker
-```
-
-### Backend → AWS Elastic Beanstalk
-1. Configure a variável `NODE_ENV=production` no Elastic Beanstalk
-2. Configure as variáveis `DB_*` apontando para uma instância RDS PostgreSQL
-3. Faça o deploy do diretório `backend/` via EB CLI ou console AWS
+| Categoria               | Exemplos                                         |
+|-------------------------|--------------------------------------------------|
+| Streaming               | Netflix, Spotify, Amazon Prime, Max, Disney+     |
+| Inteligência Artificial | ChatGPT Plus, Midjourney, Claude Pro             |
+| Educação e Idiomas      | Duolingo Super, Alura, Rocketseat                |
+| Softwares/Ferramentas   | Adobe CC, Notion, Google One, GitHub Copilot     |
+| Jogos                   | Xbox Game Pass, PlayStation Plus, EA Play        |
+| Saúde e Bem-estar       | Gympass, Headspace, Calm                         |
+| Finanças                | Serviços financeiros e de investimento           |
+| Outros                  | Qualquer serviço não categorizado acima          |
 
 ---
 
 ## Variáveis de Ambiente (Backend)
 
-| Variável       | Padrão       | Descrição                    |
-|----------------|--------------|------------------------------|
-| `PORTA`        | `3000`       | Porta do servidor Express    |
-| `DB_HOST`      | `localhost`  | Host do PostgreSQL           |
-| `DB_PORT`      | `5432`       | Porta do PostgreSQL          |
-| `DB_NOME`      | `ralo_tracker`| Nome do banco de dados      |
-| `DB_USUARIO`   | `postgres`   | Usuário do banco             |
-| `DB_SENHA`     | *(vazio)*    | Senha do banco               |
+| Variável      | Padrão      | Descrição                  |
+|---------------|-------------|----------------------------|
+| `PORTA`       | `3000`      | Porta do servidor Express  |
+| `DB_HOST`     | `localhost` | Host do PostgreSQL         |
+| `DB_PORT`     | `5432`      | Porta do PostgreSQL        |
+| `DB_NOME`     | `kua`       | Nome do banco de dados     |
+| `DB_USUARIO`  | `postgres`  | Usuário do banco           |
+| `DB_SENHA`    | *(vazio)*   | Senha do banco             |
+| `CORS_ORIGIN` | `http://localhost:4200` | Origem permitida pelo CORS |
+
+> **Segurança:** nunca commite o arquivo `.env`. Ele já está no `.gitignore`.

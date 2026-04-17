@@ -1,5 +1,5 @@
 /**
- * Modelos de dados TypeScript para o Ralo Tracker
+ * Modelos de dados TypeScript para o Kua
  * Define as interfaces e constantes usadas em toda a aplicação
  */
 
@@ -91,6 +91,56 @@ export const SUGESTOES_SERVICOS: { nome: string; categoria: string; icone: strin
   { nome: 'Headspace',         categoria: 'Saúde e Bem-estar',       icone: '🧘' },
   { nome: 'Calm',              categoria: 'Saúde e Bem-estar',       icone: '😌' },
 ];
+
+// ─────────────────────────────────────────────────────────────
+// Mapa de domínios para logos via Clearbit Logo API
+// ─────────────────────────────────────────────────────────────
+const DOMINIOS: { [nome: string]: string } = {
+  'Netflix':                  'netflix.com',
+  'Spotify':                  'spotify.com',
+  'Amazon Prime':             'amazon.com',
+  'Max':                      'max.com',
+  'Disney+':                  'disneyplus.com',
+  'Apple TV+':                'apple.com',
+  'Paramount+':               'paramountplus.com',
+  'Crunchyroll':              'crunchyroll.com',
+  'Deezer':                   'deezer.com',
+  'YouTube Premium':          'youtube.com',
+  'ChatGPT Plus':             'openai.com',
+  'Claude Pro':               'anthropic.com',
+  'Midjourney':               'midjourney.com',
+  'GitHub Copilot':           'github.com',
+  'Perplexity Pro':           'perplexity.ai',
+  'Adobe Creative Cloud':     'adobe.com',
+  'Notion':                   'notion.so',
+  'Google One':               'google.com',
+  'Microsoft 365':            'microsoft.com',
+  'Dropbox':                  'dropbox.com',
+  'Figma':                    'figma.com',
+  'Canva Pro':                'canva.com',
+  'LastPass':                 'lastpass.com',
+  '1Password':                '1password.com',
+  'Duolingo Super':           'duolingo.com',
+  'Alura':                    'alura.com.br',
+  'QConcursos':               'qconcursos.com',
+  'Estratégia Concursos':     'estrategiaconcursos.com.br',
+  'Coursera':                 'coursera.org',
+  'Udemy':                    'udemy.com',
+  'Rocketseat':               'rocketseat.com.br',
+  'Babbel':                   'babbel.com',
+  'Xbox Game Pass':           'xbox.com',
+  'PlayStation Plus':         'playstation.com',
+  'Nintendo Switch Online':   'nintendo.com',
+  'EA Play':                  'ea.com',
+  'Gympass':                  'gympass.com',
+  'Headspace':                'headspace.com',
+  'Calm':                     'calm.com',
+};
+
+export function getLogoUrl(nome: string): string {
+  const dominio = DOMINIOS[nome];
+  return dominio ? `https://logo.clearbit.com/${dominio}` : '';
+}
 
 // ─────────────────────────────────────────────────────────────
 // Mapa de cores CSS por categoria (para cards e gráfico)

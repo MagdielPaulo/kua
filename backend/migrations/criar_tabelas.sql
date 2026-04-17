@@ -1,11 +1,11 @@
 -- ============================================================
--- Migração inicial do Ralo Tracker
+-- Migração inicial do Kua
 -- Cria as tabelas necessárias para o gerenciamento de assinaturas
 -- Execute este script no PostgreSQL antes de iniciar o servidor
 -- ============================================================
 
 -- Cria o banco de dados (execute separadamente se necessário)
--- CREATE DATABASE ralo_tracker;
+-- CREATE DATABASE kua;
 
 -- Remove a tabela caso já exista (útil em desenvolvimento)
 DROP TABLE IF EXISTS assinaturas;

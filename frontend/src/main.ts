@@ -7,4 +7,4 @@ import { AppModule } from './app/app.module';
 
 platformBrowserDynamic()
   .bootstrapModule(AppModule)
-  .catch(err => console.error('Erro ao inicializar o Ralo Tracker:', err));
+  .catch(err => console.error('Erro ao inicializar o Kua:', err));

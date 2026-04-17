@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ralo-tracker-frontend": {
+    "kua-frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ralo-tracker-frontend",
+            "outputPath": "dist/kua-frontend",
             "index":      "src/index.html",
             "main":       "src/main.ts",
             "polyfills":  ["zone.js"],
@@ -60,15 +60,15 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production":  { "browserTarget": "ralo-tracker-frontend:build:production" },
-            "development": { "browserTarget": "ralo-tracker-frontend:build:development" }
+            "production":  { "browserTarget": "kua-frontend:build:production" },
+            "development": { "browserTarget": "kua-frontend:build:development" }
           },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ralo-tracker-frontend:build"
+            "browserTarget": "kua-frontend:build"
           }
         },
         "test": {

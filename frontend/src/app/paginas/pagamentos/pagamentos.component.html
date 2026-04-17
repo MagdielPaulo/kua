@@ -1,0 +1,121 @@
+<div class="pagamentos-wrapper">
+
+  <!-- Cabeçalho -->
+  <div class="cabecalho-pagina reveal-item" style="--delay:.05s">
+    <div>
+      <h1 class="titulo-pagina">Pagamentos</h1>
+      <p class="subtitulo-pagina">Calendário de cobranças e próximos vencimentos</p>
+    </div>
+  </div>
+
+  <div *ngIf="carregando" class="carregando-center">
+    <div class="spinner"></div>
+  </div>
+
+  <ng-container *ngIf="!carregando && !mensagemErro">
+
+    <div class="layout-pagamentos">
+
+      <!-- ── Calendário ──────────────────────────────────── -->
+      <div class="glass-card calendario-card reveal-item" style="--delay:.10s">
+
+        <!-- Navegação de mês -->
+        <div class="cal-header">
+          <button class="cal-nav-btn" (click)="mesAnterior()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="cal-mes-label">{{ nomeMesAtual }}</span>
+          <button class="cal-nav-btn" (click)="proximoMes()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <!-- Dias da semana -->
+        <div class="cal-grid cal-header-dias">
+          <span *ngFor="let d of DIAS_SEMANA" class="cal-dia-header">{{ d }}</span>
+        </div>
+
+        <!-- Grade do calendário -->
+        <div class="cal-body">
+          <ng-container *ngFor="let semana of semanas">
+            <div class="cal-grid cal-semana">
+              <div
+                *ngFor="let dia of semana.dias"
+                class="cal-celula"
+                [class.hoje]="ehHoje(dia)"
+                [class.tem-pagamento]="assinaturasDoDia(dia).length > 0"
+                [class.vazio]="!dia"
+                (click)="dia && assinaturasDoDia(dia).length && irParaDetalhes(assinaturasDoDia(dia)[0].id)">
+
+                <span class="cal-dia-numero" *ngIf="dia">{{ dia }}</span>
+
+                <!-- Indicadores de pagamento -->
+                <div class="cal-dots" *ngIf="dia && assinaturasDoDia(dia).length > 0">
+                  <span
+                    *ngFor="let a of assinaturasDoDia(dia).slice(0,3)"
+                    class="cal-dot"
+                    [style.background-color]="corCategoria(a.categoria)">
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Legenda: total do mês -->
+        <div class="cal-footer">
+          <span class="cal-label-total">Total previsto no mês</span>
+          <span class="cal-valor-total">{{ formatarMoeda(totalDoDia(assinaturas)) }}</span>
+        </div>
+      </div>
+
+      <!-- ── Timeline de Vencimentos ─────────────────────── -->
+      <div class="timeline-section reveal-item" style="--delay:.15s">
+        <h2 class="section-title">Próximos Vencimentos</h2>
+
+        <div *ngIf="eventosMes.length === 0" class="estado-vazio-sm">
+          <p>Nenhum vencimento cadastrado com dia de cobrança.</p>
+        </div>
+
+        <div class="timeline-list">
+          <div *ngFor="let evento of eventosMes" class="timeline-item glass-card">
+
+            <div class="timeline-dia-badge" [class.urgente]="diasAteVencimento(evento.dia) <= 3">
+              <span class="timeline-dias-num">{{ diasAteVencimento(evento.dia) }}</span>
+              <span class="timeline-dias-label">dias</span>
+            </div>
+
+            <div class="timeline-content">
+              <div class="timeline-header-item">
+                <span class="timeline-data">Dia {{ evento.dia }}</span>
+                <span class="timeline-total">{{ formatarMoeda(totalDoDia(evento.assinaturas)) }}</span>
+              </div>
+
+              <div class="timeline-assinaturas">
+                <div
+                  *ngFor="let a of evento.assinaturas"
+                  class="timeline-assinatura"
+                  (click)="irParaDetalhes(a.id)">
+                  <div class="tl-logo" [style.border-color]="corCategoria(a.categoria) + '44'">
+                    <img *ngIf="logoUrl(a.nome)" [src]="logoUrl(a.nome)" [alt]="a.nome" class="tl-logo-img"
+                         (error)="$any($event.target).style.display='none'">
+                    <span class="tl-logo-fb" [style.color]="corCategoria(a.categoria)">
+                      {{ a.nome.charAt(0) }}
+                    </span>
+                  </div>
+                  <span class="tl-nome">{{ a.nome }}</span>
+                  <span class="tl-valor" [style.color]="corCategoria(a.categoria)">
+                    {{ formatarMoeda(a.ciclo_cobranca === 'Mensal' ? a.valor : a.valor / 12) }}
+                  </span>
+                  <span class="tl-ciclo">{{ a.ciclo_cobranca === 'Anual' ? '/mês' : '' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+</div>

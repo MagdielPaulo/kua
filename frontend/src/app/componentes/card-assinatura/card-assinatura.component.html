@@ -19,15 +19,23 @@
   <!-- Conteúdo do card -->
   <div class="card-conteudo">
 
-    <!-- Linha superior: nome e valor -->
+    <!-- Linha superior: logo + nome e valor -->
     <div class="card-linha-principal">
       <div class="card-nome-grupo">
+        <!-- Logo do serviço -->
+        <div class="card-logo-wrap" [style.background-color]="corCategoria + '18'" [style.border-color]="corCategoria + '33'">
+          <img *ngIf="logoUrl" [src]="logoUrl" [alt]="assinatura.nome"
+               class="card-logo-img" (error)="logoErro($any($event.target))">
+          <span class="logo-fallback" [style.display]="logoUrl ? 'none' : 'flex'"
+                [style.color]="corCategoria">
+            {{ assinatura.nome.charAt(0) }}
+          </span>
+        </div>
+
         <span class="card-nome">{{ assinatura.nome }}</span>
 
         <!-- Badge Trial -->
-        <span *ngIf="assinatura.is_trial" class="badge-trial">
-          TRIAL
-        </span>
+        <span *ngIf="assinatura.is_trial" class="badge-trial">TRIAL</span>
       </div>
 
       <!-- Valor da assinatura -->

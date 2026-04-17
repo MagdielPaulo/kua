@@ -1,153 +1,195 @@
-<!-- ============================================================
-  Template da Tela Principal — Dashboard
-  Exibe: resumo financeiro, alertas de trial, gráfico e lista de faturas
-  ============================================================ -->
+<div class="dashboard-wrapper">
 
-<div class="dashboard-container container">
+  <!-- ── Skeleton Loader ──────────────────────────────────── -->
+  <ng-container *ngIf="carregando">
+    <div class="skeleton-header">
+      <div class="skeleton-block skeleton-titulo"></div>
+      <div class="skeleton-block skeleton-btn"></div>
+    </div>
+    <div class="grade-resumo">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+        <div class="skeleton-block" style="width:60%;height:10px;margin-bottom:.75rem"></div>
+        <div class="skeleton-block" style="width:80%;height:28px;margin-bottom:.5rem"></div>
+        <div class="skeleton-block" style="width:45%;height:8px"></div>
+        <div class="skeleton-sparkline"></div>
+      </div>
+    </div>
+    <div class="skeleton-card" style="height:340px;margin-top:1rem"></div>
+  </ng-container>
 
-  <!-- ── Estado de Carregamento ───────────────────────────── -->
-  <div *ngIf="carregando" class="carregando">
-    <div class="spinner"></div>
-    <p>Carregando seus dados financeiros...</p>
+  <!-- ── Erro ─────────────────────────────────────────────── -->
+  <div *ngIf="!carregando && mensagemErro" class="glass-alert-error reveal-item">
+    <span class="alert-icon">⚠</span>
+    <span>{{ mensagemErro }}</span>
+    <button class="btn btn-secundario" (click)="carregarDados()">Tentar novamente</button>
   </div>
 
-  <!-- ── Estado de Erro ───────────────────────────────────── -->
-  <div *ngIf="!carregando && mensagemErro" class="alerta-erro" style="margin-top:2rem">
-    <strong>⚠️ Erro ao carregar dados:</strong> {{ mensagemErro }}
-    <br>
-    <button class="btn btn-secundario" style="margin-top:1rem" (click)="carregarDados()">
-      Tentar novamente
-    </button>
-  </div>
-
-  <!-- ── Conteúdo Principal ───────────────────────────────── -->
+  <!-- ── Conteúdo Principal ────────────────────────────────── -->
   <ng-container *ngIf="!carregando && !mensagemErro">
 
-    <!-- ─ Cabeçalho da Página ─────────────────────────────── -->
-    <div class="cabecalho-pagina">
+    <!-- ─ Cabeçalho ──────────────────────────────────────── -->
+    <div class="cabecalho-pagina reveal-item" style="--delay:.05s">
       <div>
         <h1 class="titulo-pagina">Dashboard</h1>
         <p class="subtitulo-pagina">Visão geral dos seus gastos com assinaturas</p>
       </div>
-      <button class="btn btn-primario" (click)="navegarParaNovaAssinatura()">
-        + Nova Assinatura
+      <button class="btn btn-primario btn-nova-assinatura" (click)="navegarParaNovaAssinatura()">
+        <span class="btn-plus">+</span> Nova Assinatura
       </button>
     </div>
 
-    <!-- ─ Alertas de Trial Expirando ──────────────────────── -->
-    <div *ngIf="trialsExpirandoLogo.length > 0" class="secao-alertas">
+    <!-- ─ Alertas de Trial ───────────────────────────────── -->
+    <div *ngIf="trialsExpirandoLogo.length > 0" class="secao-alertas reveal-item" style="--delay:.10s">
       <div
         *ngFor="let trial of trialsExpirandoLogo"
         class="alerta-trial"
         [ngClass]="classeTrial(calcularDiasParaExpirar(trial.data_fim_trial!))">
-
         <span class="alerta-icone">🔔</span>
         <div class="alerta-texto">
           <strong>{{ trial.nome }}</strong>
           <ng-container [ngSwitch]="calcularDiasParaExpirar(trial.data_fim_trial!)">
-            <span *ngSwitchCase="0">expira <strong>HOJE</strong>! Cancele ou assine para evitar cobrança.</span>
-            <span *ngSwitchCase="1">expira <strong>amanhã</strong>! Você tem 1 dia para agir.</span>
-            <span *ngSwitchDefault>
-              expira em <strong>{{ calcularDiasParaExpirar(trial.data_fim_trial!) }} dias</strong>.
-            </span>
+            <span *ngSwitchCase="0">expira <strong>HOJE</strong>! Cancele ou assine.</span>
+            <span *ngSwitchCase="1">expira <strong>amanhã</strong>!</span>
+            <span *ngSwitchDefault>expira em <strong>{{ calcularDiasParaExpirar(trial.data_fim_trial!) }} dias</strong>.</span>
           </ng-container>
         </div>
-
-        <button class="alerta-btn-detalhes" (click)="navegarParaDetalhes(trial.id)">
-          Ver detalhes →
-        </button>
+        <button class="alerta-btn-detalhes" (click)="navegarParaDetalhes(trial.id)">Ver detalhes →</button>
       </div>
     </div>
 
-    <!-- ─ Cards de Resumo Financeiro ──────────────────────── -->
+    <!-- ─ Cards de Métricas ──────────────────────────────── -->
     <div class="grade-resumo">
 
-      <div class="card card-resumo">
-        <div class="card-resumo-label">Total Mensal</div>
-        <div class="card-resumo-valor principal">{{ formatarMoeda(custoMensalTotal) }}</div>
-        <div class="card-resumo-desc">somando todos os ciclos</div>
+      <!-- Card 1: Total Mensal -->
+      <div class="metric-card reveal-item" style="--delay:.12s">
+        <div class="metric-top-bar" style="background:linear-gradient(90deg,transparent,#22d3ee,transparent)"></div>
+        <div class="metric-inner-glow" style="--glow-color:rgba(34,211,238,.12)"></div>
+        <div class="metric-content">
+          <span class="metric-label">Total Mensal</span>
+          <div class="metric-value gradient-cyan">{{ formatarMoeda(custoMensalTotal) }}</div>
+          <span class="metric-desc">somando todos os ciclos</span>
+        </div>
+        <div class="metric-sparkline-wrap">
+          <svg class="sparkline-svg" viewBox="0 0 120 36" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-cyan" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#22d3ee" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path [attr.d]="sparklineMensalArea" fill="url(#grad-cyan)"/>
+            <path [attr.d]="sparklineMensalLine" fill="none" stroke="#22d3ee" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
       </div>
 
-      <div class="card card-resumo">
-        <div class="card-resumo-label">Projeção Anual</div>
-        <div class="card-resumo-valor">{{ formatarMoeda(custoAnualProjetado) }}</div>
-        <div class="card-resumo-desc">se nada mudar em 12 meses</div>
+      <!-- Card 2: Projeção Anual -->
+      <div class="metric-card reveal-item" style="--delay:.18s">
+        <div class="metric-top-bar" style="background:linear-gradient(90deg,transparent,#818cf8,transparent)"></div>
+        <div class="metric-inner-glow" style="--glow-color:rgba(129,140,248,.10)"></div>
+        <div class="metric-content">
+          <span class="metric-label">Projeção Anual</span>
+          <div class="metric-value gradient-indigo">{{ formatarMoeda(custoAnualProjetado) }}</div>
+          <span class="metric-desc">se nada mudar em 12 meses</span>
+        </div>
+        <div class="metric-sparkline-wrap">
+          <svg class="sparkline-svg" viewBox="0 0 120 36" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-indigo" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#818cf8" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path [attr.d]="sparklineAnualArea" fill="url(#grad-indigo)"/>
+            <path [attr.d]="sparklineAnualLine" fill="none" stroke="#818cf8" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
       </div>
 
-      <div class="card card-resumo">
-        <div class="card-resumo-label">Assinaturas Ativas</div>
-        <div class="card-resumo-valor neutro">{{ assinaturas.length }}</div>
-        <div class="card-resumo-desc">
-          <span *ngIf="quantidadeTrials > 0" class="destaque-trial">
-            {{ quantidadeTrials }} em período de teste
+      <!-- Card 3: Assinaturas Ativas -->
+      <div class="metric-card reveal-item" style="--delay:.24s">
+        <div class="metric-top-bar" style="background:linear-gradient(90deg,transparent,#10b981,transparent)"></div>
+        <div class="metric-inner-glow" style="--glow-color:rgba(16,185,129,.10)"></div>
+        <div class="metric-content">
+          <span class="metric-label">Assinaturas Ativas</span>
+          <div class="metric-value gradient-emerald">{{ assinaturas.length }}</div>
+          <span class="metric-desc">
+            <span *ngIf="quantidadeTrials > 0" class="badge-trial-mini">{{ quantidadeTrials }} trials</span>
+            <span *ngIf="quantidadeTrials === 0">sem trials ativos</span>
           </span>
-          <span *ngIf="quantidadeTrials === 0">sem trials ativos</span>
+        </div>
+        <div class="metric-sparkline-wrap">
+          <svg class="sparkline-svg" viewBox="0 0 120 36" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path [attr.d]="sparklineAtivosArea" fill="url(#grad-emerald)"/>
+            <path [attr.d]="sparklineAtivosLine" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
         </div>
       </div>
 
     </div>
+    <!-- /grade-resumo -->
 
-    <!-- ─ Estado Vazio (sem assinaturas cadastradas) ────────── -->
-    <div *ngIf="assinaturas.length === 0" class="estado-vazio">
-      <div class="icone-vazio">🐺</div>
-      <h2>Nenhuma assinatura cadastrada ainda</h2>
-      <p>Comece adicionando seus serviços para ter controle total dos seus gastos.</p>
-      <button class="btn btn-primario" (click)="navegarParaNovaAssinatura()">
-        + Adicionar primeira assinatura
+    <!-- ─ Estado Vazio ───────────────────────────────────── -->
+    <div *ngIf="assinaturas.length === 0" class="estado-vazio-glass reveal-item" style="--delay:.30s">
+      <div class="orb-wrapper">
+        <canvas #canvas3d class="canvas-orb" width="260" height="260"></canvas>
+      </div>
+      <h2 class="estado-vazio-titulo">Nenhuma assinatura ainda</h2>
+      <p class="estado-vazio-desc">Adicione seus serviços e tenha controle total dos seus gastos mensais.</p>
+      <button class="btn btn-primario btn-nova-assinatura" (click)="navegarParaNovaAssinatura()">
+        <span class="btn-plus">+</span> Adicionar primeira assinatura
       </button>
     </div>
 
-    <!-- ─ Conteúdo com Dados ──────────────────────────────── -->
+    <!-- ─ Conteúdo com Dados ─────────────────────────────── -->
     <ng-container *ngIf="assinaturas.length > 0">
 
-      <!-- Gráfico de Gastos por Categoria -->
-      <div class="secao" *ngIf="Object.keys(gastosPorCategoria).length > 0">
+      <!-- Gráfico -->
+      <div class="secao reveal-item" *ngIf="Object.keys(gastosPorCategoria).length > 0" style="--delay:.30s">
         <h2 class="titulo-secao">Gastos por Categoria</h2>
-        <app-grafico-gastos
-          [gastosPorCategoria]="gastosPorCategoria">
-        </app-grafico-gastos>
+        <app-grafico-gastos [gastosPorCategoria]="gastosPorCategoria" [assinaturas]="assinaturas"></app-grafico-gastos>
       </div>
 
-      <!-- Próximas Faturas (15 dias) -->
-      <div class="secao" *ngIf="fatutasProximas15Dias.length > 0">
+      <!-- Próximas Faturas -->
+      <div class="secao reveal-item" *ngIf="fatutasProximas15Dias.length > 0" style="--delay:.36s">
         <h2 class="titulo-secao">
           Próximas Faturas
           <span class="badge-contador">{{ fatutasProximas15Dias.length }}</span>
         </h2>
         <p class="desc-secao">Cobranças previstas para os próximos 15 dias</p>
-
         <div class="lista-cards">
           <app-card-assinatura
-            *ngFor="let assinatura of fatutasProximas15Dias"
-            [assinatura]="assinatura"
-            [diasParaRenovacao]="calcularDiasParaRenovacao(assinatura.data_renovacao!)"
-            (clicado)="navegarParaDetalhes(assinatura.id)">
+            *ngFor="let a of fatutasProximas15Dias"
+            [assinatura]="a"
+            [diasParaRenovacao]="calcularDiasParaRenovacao(a.data_renovacao!)"
+            (clicado)="navegarParaDetalhes(a.id)">
           </app-card-assinatura>
         </div>
       </div>
 
       <!-- Todas as Assinaturas -->
-      <div class="secao">
+      <div class="secao reveal-item" style="--delay:.42s">
         <h2 class="titulo-secao">
           Todas as Assinaturas
           <span class="badge-contador">{{ assinaturas.length }}</span>
         </h2>
-
         <div class="lista-cards">
           <app-card-assinatura
-            *ngFor="let assinatura of assinaturas"
-            [assinatura]="assinatura"
-            [diasParaRenovacao]="assinatura.data_renovacao ? calcularDiasParaRenovacao(assinatura.data_renovacao) : undefined"
-            (clicado)="navegarParaDetalhes(assinatura.id)">
+            *ngFor="let a of assinaturas"
+            [assinatura]="a"
+            [diasParaRenovacao]="a.data_renovacao ? calcularDiasParaRenovacao(a.data_renovacao) : undefined"
+            (clicado)="navegarParaDetalhes(a.id)">
           </app-card-assinatura>
         </div>
       </div>
 
     </ng-container>
-    <!-- /Conteúdo com Dados -->
-
   </ng-container>
-  <!-- /Conteúdo Principal -->
 
 </div>
-<!-- /dashboard-container -->

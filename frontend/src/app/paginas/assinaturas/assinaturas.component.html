@@ -1,0 +1,54 @@
+<div class="assinaturas-wrapper">
+  <div class="cabecalho-pagina reveal-item" style="--delay:.05s">
+    <div>
+      <h1 class="titulo-pagina">Assinaturas</h1>
+      <p class="subtitulo-pagina">Gerencie todos os seus serviços em um só lugar</p>
+    </div>
+    <button class="btn btn-primario btn-nova-assinatura" (click)="navegarParaNova()">
+      <span>+</span> Nova Assinatura
+    </button>
+  </div>
+
+  <div *ngIf="carregando" class="carregando-center"><div class="spinner"></div></div>
+
+  <ng-container *ngIf="!carregando && !mensagemErro">
+
+    <!-- Filtros -->
+    <div class="filtros-bar glass-card reveal-item" style="--delay:.10s">
+      <input type="text" class="busca-input" placeholder="Buscar por nome ou categoria..."
+             [(ngModel)]="filtroBusca" (input)="aplicarFiltro()">
+
+      <div class="chips-categorias">
+        <button *ngFor="let cat of categorias"
+                class="chip-cat"
+                [class.active]="filtroCategoria === cat"
+                [style.border-color]="cat !== 'Todas' && filtroCategoria === cat ? corCategoria(cat) + '66' : ''"
+                [style.color]="cat !== 'Todas' && filtroCategoria === cat ? corCategoria(cat) : ''"
+                (click)="filtroCategoria = cat; aplicarFiltro()">
+          {{ cat }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumo do filtro -->
+    <div class="filtro-info reveal-item" style="--delay:.12s">
+      <span class="filtro-count">{{ filtradas.length }} assinatura{{ filtradas.length !== 1 ? 's' : '' }}</span>
+      <span class="filtro-total">{{ formatarMoeda(totalFiltradas) }}/mês</span>
+    </div>
+
+    <!-- Lista -->
+    <div *ngIf="filtradas.length > 0" class="lista-cards reveal-item" style="--delay:.15s">
+      <app-card-assinatura
+        *ngFor="let a of filtradas"
+        [assinatura]="a"
+        (clicado)="navegarParaDetalhes(a.id)">
+      </app-card-assinatura>
+    </div>
+
+    <!-- Vazio -->
+    <div *ngIf="filtradas.length === 0" class="estado-vazio-sm">
+      <p>Nenhuma assinatura encontrada com os filtros aplicados.</p>
+    </div>
+
+  </ng-container>
+</div>

@@ -188,9 +188,11 @@ export class DetalhesAssinaturaComponent implements OnInit, OnDestroy {
     return (Number(valor) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  formatarData(dataIso: string): string {
-    const data = new Date(dataIso + 'T12:00:00');
-    return data.toLocaleDateString('pt-BR');
+  formatarData(dataIso: string | null | undefined): string {
+    if (!dataIso) return 'Não informado';
+    const str  = dataIso.includes('T') ? dataIso : `${dataIso}T12:00:00`;
+    const data = new Date(str);
+    return isNaN(data.getTime()) ? 'Data inválida' : data.toLocaleDateString('pt-BR');
   }
 
   // ─────────────────────────────────────────────────────────

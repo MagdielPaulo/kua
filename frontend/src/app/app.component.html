@@ -1,50 +1,121 @@
-<!-- ============================================================
-  Template do Componente Raiz
-  Barra de navegação fixa + área de conteúdo das rotas
-  ============================================================ -->
+<!-- ── Shell da Aplicação ──────────────────────────────────── -->
+<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed">
 
-<!-- Barra de Navegação Superior -->
-<nav class="navbar">
-  <div class="navbar-container">
+  <!-- ── Sidebar ──────────────────────────────────────────── -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
 
-    <!-- Logo / Nome do App -->
-    <a class="navbar-logo" routerLink="/dashboard">
-      <span class="logo-icone"></span>
-      <span class="logo-texto"><strong>Kua</strong></span>
-    </a>
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#22d3ee" stroke-width="1.5" opacity=".4"/>
+          <circle cx="12" cy="12" r="6" stroke="#22d3ee" stroke-width="1.5" opacity=".7"/>
+          <circle cx="12" cy="12" r="2.5" fill="#22d3ee"/>
+        </svg>
+      </div>
+      <span class="logo-text">Kua</span>
+    </div>
 
-    <!-- Links de Navegação (Desktop) -->
-    <ul class="navbar-links">
-      <li>
-        <a routerLink="/dashboard"
-           routerLinkActive="ativo"
-           [routerLinkActiveOptions]="{ exact: true }">
-          Dashboard
-        </a>
-      </li>
-    </ul>
+    <!-- Nav Items -->
+    <nav class="sidebar-nav">
+      <a class="nav-item" routerLink="/dashboard"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         [title]="sidebarCollapsed ? 'Visão Geral' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="3" y="3" width="7" height="9" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="5" rx="1.5"/>
+          <rect x="14" y="12" width="7" height="9" rx="1.5"/>
+          <rect x="3" y="16" width="7" height="5" rx="1.5"/>
+        </svg>
+        <span class="nav-label">Visão Geral</span>
+      </a>
 
-    <!-- Botão Adicionar Assinatura -->
-    <button class="btn btn-primario btn-adicionar" (click)="irParaNovaAssinatura()">
-      <span>+</span> Nova Assinatura
+      <a class="nav-item" routerLink="/assinaturas"
+         routerLinkActive="active"
+         [title]="sidebarCollapsed ? 'Assinaturas' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M2 10h20"/>
+          <path d="M6 15h4M14 15h4" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-label">Assinaturas</span>
+      </a>
+
+      <a class="nav-item" routerLink="/pagamentos"
+         routerLinkActive="active"
+         [title]="sidebarCollapsed ? 'Pagamentos' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18"/>
+          <circle cx="12" cy="15" r="2" fill="currentColor" stroke="none"/>
+        </svg>
+        <span class="nav-label">Pagamentos</span>
+      </a>
+
+      <a class="nav-item" routerLink="/relatorios"
+         routerLinkActive="active"
+         [title]="sidebarCollapsed ? 'Relatórios' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-label">Relatórios</span>
+      </a>
+
+      <div class="nav-divider"></div>
+
+      <a class="nav-item" routerLink="/configuracoes"
+         routerLinkActive="active"
+         [title]="sidebarCollapsed ? 'Configurações' : ''">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span class="nav-label">Configurações</span>
+      </a>
+    </nav>
+
+    <!-- Botão Nova Assinatura -->
+    <div class="sidebar-cta">
+      <button class="btn-cta" routerLink="/nova-assinatura"
+              [title]="sidebarCollapsed ? 'Nova Assinatura' : ''">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="nav-label">Nova Assinatura</span>
+      </button>
+    </div>
+
+    <!-- Toggle collapse -->
+    <button class="sidebar-toggle" (click)="alternarSidebar()" [title]="sidebarCollapsed ? 'Expandir' : 'Recolher'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+           [style.transform]="sidebarCollapsed ? 'rotate(180deg)' : 'none'" style="transition:.3s">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
     </button>
+  </aside>
 
-    <!-- Botão Menu Mobile -->
-    <button class="btn-menu-mobile" (click)="alternarMenu()" aria-label="Abrir menu">
-      <span class="hamburger" [class.aberto]="menuAberto">☰</span>
-    </button>
+  <!-- ── Conteúdo Principal ────────────────────────────────── -->
+  <div class="app-content">
+    <!-- Barra superior mobile -->
+    <header class="topbar-mobile">
+      <button class="btn-hamburger" (click)="alternarMenuMobile()">
+        <span class="hamburger-line" [class.open]="menuMobileAberto"></span>
+        <span class="hamburger-line" [class.open]="menuMobileAberto"></span>
+        <span class="hamburger-line" [class.open]="menuMobileAberto"></span>
+      </button>
+      <span class="topbar-logo-text">Kua</span>
+      <button class="btn-topbar-cta" routerLink="/nova-assinatura">+</button>
+    </header>
+
+    <!-- Overlay mobile -->
+    <div class="sidebar-overlay" [class.visible]="menuMobileAberto" (click)="alternarMenuMobile()"></div>
+
+    <!-- Sidebar mobile (controlada por classe no sidebar principal) -->
+
+    <main class="conteudo-principal">
+      <router-outlet></router-outlet>
+    </main>
   </div>
 
-  <!-- Menu Mobile (aparece quando menuAberto = true) -->
-  <div class="menu-mobile" [class.visivel]="menuAberto">
-    <a routerLink="/dashboard" class="menu-mobile-link">Dashboard</a>
-    <a routerLink="/nova-assinatura" class="menu-mobile-link btn-mobile-adicionar">
-      + Nova Assinatura
-    </a>
-  </div>
-</nav>
-
-<!-- Área de Conteúdo — renderiza a página da rota ativa -->
-<main class="conteudo-principal">
-  <router-outlet></router-outlet>
-</main>
+</div>

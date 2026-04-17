@@ -1,0 +1,142 @@
+<div class="config-wrapper">
+
+  <div class="cabecalho-pagina reveal-item" style="--delay:.05s">
+    <div>
+      <h1 class="titulo-pagina">Configurações</h1>
+      <p class="subtitulo-pagina">Personalize a experiência do Kua</p>
+    </div>
+  </div>
+
+  <div class="config-layout">
+
+    <!-- ── Aparência ──────────────────────────────────────── -->
+    <section class="glass-card config-section reveal-item" style="--delay:.10s">
+      <div class="section-header">
+        <div class="section-icon cyan">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="section-title-lg">Aparência</h2>
+          <p class="section-desc">Tema visual e preferências de exibição</p>
+        </div>
+      </div>
+
+      <div class="config-item">
+        <div class="config-item-info">
+          <span class="config-label">Tema</span>
+          <span class="config-sublabel">Escolha entre claro e escuro</span>
+        </div>
+        <div class="tema-toggle">
+          <button class="tema-btn" [class.active]="config.tema === 'dark'"
+                  (click)="config.tema = 'dark'">
+            🌙 Escuro
+          </button>
+          <button class="tema-btn" [class.active]="config.tema === 'light'"
+                  (click)="config.tema = 'light'">
+            ☀️ Claro
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Moeda e Localização ───────────────────────────── -->
+    <section class="glass-card config-section reveal-item" style="--delay:.15s">
+      <div class="section-header">
+        <div class="section-icon indigo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="section-title-lg">Moeda e Região</h2>
+          <p class="section-desc">Moeda padrão para exibição de valores</p>
+        </div>
+      </div>
+
+      <div class="moedas-grid">
+        <button
+          *ngFor="let m of moedas"
+          class="moeda-btn"
+          [class.active]="config.moeda === m.valor"
+          (click)="config.moeda = m.valor">
+          <span class="moeda-simbolo">{{ m.simbolo }}</span>
+          <span class="moeda-label">{{ m.label }}</span>
+          <span class="moeda-code">{{ m.valor }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Notificações ──────────────────────────────────── -->
+    <section class="glass-card config-section reveal-item" style="--delay:.20s">
+      <div class="section-header">
+        <div class="section-icon emerald">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="section-title-lg">Alertas e Notificações</h2>
+          <p class="section-desc">Avise-me antes do vencimento dos trials</p>
+        </div>
+      </div>
+
+      <div class="config-item">
+        <div class="config-item-info">
+          <span class="config-label">Alertar com antecedência de</span>
+          <span class="config-sublabel">Dias antes do fim do trial ou cobrança</span>
+        </div>
+        <div class="dias-selector">
+          <button
+            *ngFor="let d of intervalosAlerta"
+            class="dia-btn"
+            [class.active]="config.alertasDias === d"
+            (click)="config.alertasDias = d">
+            {{ d }}d
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Dados ─────────────────────────────────────────── -->
+    <section class="glass-card config-section reveal-item" style="--delay:.25s">
+      <div class="section-header">
+        <div class="section-icon amber">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="section-title-lg">Exportar Dados</h2>
+          <p class="section-desc">Baixe todas as suas assinaturas</p>
+        </div>
+      </div>
+
+      <div class="export-btns">
+        <button class="btn-export" (click)="exportarJSON()" [disabled]="exporting">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Exportar JSON
+        </button>
+        <button class="btn-export btn-export-csv" (click)="exportarCSV()" [disabled]="exporting">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </section>
+
+    <!-- Botão Salvar -->
+    <div class="salvar-row reveal-item" style="--delay:.30s">
+      <div *ngIf="salvo" class="salvo-badge">✓ Configurações salvas!</div>
+      <button class="btn btn-primario btn-salvar" (click)="salvar()">
+        Salvar Configurações
+      </button>
+    </div>
+
+  </div>
+</div>

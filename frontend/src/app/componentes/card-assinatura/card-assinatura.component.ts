@@ -4,7 +4,7 @@
  * Recebe os dados via @Input e emite um evento @Output ao ser clicado.
  */
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { Assinatura, COR_POR_CATEGORIA } from '../../modelos/assinatura.model';
+import { Assinatura, COR_POR_CATEGORIA, getLogoUrl } from '../../modelos/assinatura.model';
 
 @Component({
   selector:    'app-card-assinatura',
@@ -27,9 +27,21 @@ export class CardAssinaturaComponent {
     this.clicado.emit();
   }
 
-  /** Retorna a cor CSS correspondente à categoria da assinatura */
   get corCategoria(): string {
     return COR_POR_CATEGORIA[this.assinatura.categoria] || '#6b7280';
+  }
+
+  get logoUrl(): string {
+    return this.assinatura.icone_url || getLogoUrl(this.assinatura.nome);
+  }
+
+  logoErro(img: HTMLImageElement): void {
+    img.style.display = 'none';
+    const parent = img.parentElement;
+    if (parent) {
+      const span = parent.querySelector('.logo-fallback') as HTMLElement;
+      if (span) span.style.display = 'flex';
+    }
   }
 
   /** Calcula o valor mensal equivalente (para assinaturas anuais) */
@@ -64,9 +76,11 @@ export class CardAssinaturaComponent {
     return (Number(valor) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  /** Formata uma data ISO em formato legível (dd/mm/aaaa) */
-  formatarData(dataIso: string): string {
-    const data = new Date(dataIso + 'T12:00:00'); // Evita problema de fuso horário
-    return data.toLocaleDateString('pt-BR');
+  formatarData(dataIso: string | null | undefined): string {
+    if (!dataIso) return 'Não informado';
+    // Se já tem hora (timestamp do banco), não duplica o T
+    const str  = dataIso.includes('T') ? dataIso : `${dataIso}T12:00:00`;
+    const data = new Date(str);
+    return isNaN(data.getTime()) ? 'Data inválida' : data.toLocaleDateString('pt-BR');
   }
 }
