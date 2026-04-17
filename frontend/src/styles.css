@@ -1,0 +1,317 @@
+/* ============================================================
+   Estilos Globais — Ralo Tracker
+   Tema Dark Futuristic — Blue/Cyan
+   ============================================================ */
+
+/* ─── Variáveis de Cor e Design ───────────────────────────── */
+:root {
+  /* Fundos */
+  --bg-primario:    #030d1a;
+  --bg-secundario:  #071428;
+  --bg-terciario:   #0d2040;
+  --bg-input:       #050f20;
+
+  /* Bordas */
+  --borda:          #1a3a5c;
+  --borda-foco:     #00d4ff;
+
+  /* Textos */
+  --texto-primario:   #e2f0ff;
+  --texto-secundario: #7ba8cc;
+  --texto-terciario:  #4a7a9b;
+
+  /* Cores de destaque */
+  --acento:         #00d4ff;
+  --acento-hover:   #00b8e0;
+  --acento-glow:    rgba(0, 212, 255, 0.25);
+  --acento-2:       #3b82f6;
+  --sucesso:        #00e5a0;
+  --aviso:          #f59e0b;
+  --perigo:         #ff4d6a;
+  --perigo-hover:   #e03055;
+  --info:           #3b82f6;
+
+  /* Cores por Categoria */
+  --cat-streaming:    #a855f7;
+  --cat-ia:           #00d4ff;
+  --cat-educacao:     #00e5a0;
+  --cat-software:     #f59e0b;
+  --cat-jogos:        #ff4d6a;
+  --cat-saude:        #f472b6;
+  --cat-financas:     #14b8a6;
+  --cat-outros:       #4a7a9b;
+
+  /* Tipografia */
+  --fonte:          'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius:         0.5rem;
+  --radius-lg:      0.75rem;
+  --sombra:         0 4px 24px rgba(0, 0, 0, 0.6);
+  --sombra-glow:    0 0 24px rgba(0, 212, 255, 0.12);
+  --transicao:      all 0.2s ease;
+}
+
+/* ─── Reset e Base ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--fonte);
+  background-color: var(--bg-primario);
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(0, 80, 160, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0, 40, 100, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #030d1a 0%, #060f20 100%);
+  background-attachment: fixed;
+  color: var(--texto-primario);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Tipografia ──────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--texto-primario);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+p { color: var(--texto-secundario); }
+
+a {
+  color: var(--acento);
+  text-decoration: none;
+  transition: var(--transicao);
+}
+a:hover { color: var(--acento-hover); }
+
+/* ─── Utilitários Globais ─────────────────────────────────── */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Card base reutilizável */
+.card {
+  background: linear-gradient(135deg, rgba(10, 25, 50, 0.95) 0%, rgba(7, 18, 38, 0.98) 100%);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--sombra), var(--sombra-glow);
+  transition: var(--transicao);
+  backdrop-filter: blur(8px);
+}
+.card:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  box-shadow: var(--sombra), 0 0 32px rgba(0, 212, 255, 0.15);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--fonte);
+  cursor: pointer;
+  border: none;
+  transition: var(--transicao);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primario {
+  background: linear-gradient(135deg, #0080cc 0%, #00b4e6 100%);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(0, 180, 230, 0.3);
+}
+.btn-primario:hover {
+  background: linear-gradient(135deg, #0090e0 0%, #00ceff 100%);
+  color: #fff;
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-perigo {
+  background-color: transparent;
+  color: var(--perigo);
+  border: 1px solid var(--perigo);
+}
+.btn-perigo:hover {
+  background-color: var(--perigo);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(255, 77, 106, 0.4);
+}
+
+.btn-secundario {
+  background-color: rgba(13, 32, 64, 0.8);
+  color: var(--texto-primario);
+  border: 1px solid var(--borda);
+}
+.btn-secundario:hover {
+  background-color: var(--bg-terciario);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Campos de formulário */
+.campo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.campo-form label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--acento);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.campo-form input,
+.campo-form select,
+.campo-form textarea {
+  background-color: var(--bg-input);
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  color: var(--texto-primario);
+  font-family: var(--fonte);
+  font-size: 0.95rem;
+  padding: 0.65rem 0.9rem;
+  transition: var(--transicao);
+  width: 100%;
+}
+
+.campo-form input:focus,
+.campo-form select:focus,
+.campo-form textarea:focus {
+  outline: none;
+  border-color: var(--borda-foco);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12), 0 0 12px rgba(0, 212, 255, 0.1);
+}
+
+.campo-form input::placeholder,
+.campo-form textarea::placeholder {
+  color: var(--texto-terciario);
+}
+
+/* Erro de validação */
+.erro-campo {
+  font-size: 0.78rem;
+  color: var(--perigo);
+  margin-top: 0.2rem;
+}
+
+/* Badge de categoria */
+.badge-categoria {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Badge de trial */
+.badge-trial {
+  background-color: rgba(255, 77, 106, 0.12);
+  color: var(--perigo);
+  border: 1px solid rgba(255, 77, 106, 0.3);
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Estado de carregamento */
+.carregando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: var(--texto-secundario);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(0, 212, 255, 0.15);
+  border-top-color: var(--acento);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+/* Estado vazio */
+.estado-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  gap: 1rem;
+  color: var(--texto-terciario);
+  text-align: center;
+}
+
+.estado-vazio .icone-vazio {
+  font-size: 3rem;
+  opacity: 0.3;
+}
+
+/* Alerta de erro */
+.alerta-erro {
+  background-color: rgba(255, 77, 106, 0.08);
+  border: 1px solid rgba(255, 77, 106, 0.3);
+  border-radius: var(--radius);
+  color: var(--perigo);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--borda);
+  margin: 1.5rem 0;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-primario); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #004080, #006090);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--acento); }
+
+/* Seleção de texto */
+::selection {
+  background-color: rgba(0, 212, 255, 0.2);
+  color: var(--texto-primario);
+}

@@ -1,0 +1,30 @@
+<!-- Gráfico de Gastos por Categoria -->
+
+<div class="grafico-card card" *ngIf="temDados; else semDados">
+
+  <!-- Cabeçalho do gráfico -->
+  <div class="grafico-header">
+    <div>
+      <h3 class="grafico-titulo">Distribuição de Gastos</h3>
+      <p class="grafico-subtitulo">{{ quantidadeCategorias }} categorias · mensal</p>
+    </div>
+    <div class="grafico-total-badge">
+      <span class="total-label">total</span>
+      <span class="total-valor">{{ totalMensal }}</span>
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="grafico-area">
+    <canvas #canvasGrafico></canvas>
+  </div>
+
+</div>
+
+<!-- Estado vazio -->
+<ng-template #semDados>
+  <div class="card grafico-vazio">
+    <span class="grafico-vazio-icone">📊</span>
+    <p>Nenhum dado para exibir ainda.</p>
+  </div>
+</ng-template>

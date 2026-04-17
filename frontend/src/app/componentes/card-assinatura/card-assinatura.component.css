@@ -1,0 +1,205 @@
+/* ─── Card de Assinatura ──────────────────────────────────── */
+.card-assinatura {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  background: linear-gradient(135deg, rgba(10, 22, 48, 0.97) 0%, rgba(5, 14, 32, 0.99) 100%);
+}
+
+/* Shimmer que percorre o card ao hover */
+.card-assinatura::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 80%
+  );
+  transition: left 0.5s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Overlay de brilho da categoria */
+.card-assinatura::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 0% 50%,
+    color-mix(in srgb, var(--cor-cat, #00d4ff) 8%, transparent) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-assinatura:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--cor-cat, #00d4ff) 55%, transparent);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.55),
+    0 0 20px color-mix(in srgb, var(--cor-cat, #00d4ff) 20%, transparent);
+}
+
+.card-assinatura:hover::before {
+  left: 150%;
+}
+
+.card-assinatura:hover::after {
+  opacity: 1;
+}
+
+.card-assinatura:focus {
+  outline: 2px solid var(--cor-cat, var(--acento));
+  outline-offset: 2px;
+}
+
+/* Trial urgente: borda pulsante */
+.card-assinatura.trial-urgente {
+  border-color: rgba(255, 77, 106, 0.5);
+  animation: pulsar-borda 2s ease-in-out infinite;
+}
+
+@keyframes pulsar-borda {
+  0%, 100% {
+    border-color: rgba(255, 77, 106, 0.4);
+    box-shadow: 0 0 0 rgba(255, 77, 106, 0);
+  }
+  50% {
+    border-color: rgba(255, 77, 106, 0.85);
+    box-shadow: 0 0 18px rgba(255, 77, 106, 0.2);
+  }
+}
+
+/* ─── Faixa lateral colorida ──────────────────────────────── */
+.faixa-categoria {
+  width: 3px;
+  flex-shrink: 0;
+  border-radius: 0.75rem 0 0 0.75rem;
+  position: relative;
+  z-index: 2;
+  box-shadow: 2px 0 8px color-mix(in srgb, var(--cor-cat, #00d4ff) 30%, transparent);
+}
+
+/* ─── Conteúdo ────────────────────────────────────────────── */
+.card-conteudo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.95rem 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* Linha superior: nome + valor */
+.card-linha-principal {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-nome-grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-nome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--texto-primario);
+  transition: color 0.2s;
+}
+
+.card-assinatura:hover .card-nome {
+  color: #fff;
+}
+
+/* Valor */
+.card-valor-grupo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.card-valor {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--cor-cat, #00d4ff) 80%, #e2f0ff);
+  transition: color 0.2s;
+}
+
+.card-ciclo {
+  font-size: 0.72rem;
+  color: var(--texto-terciario);
+}
+
+/* Linha inferior */
+.card-linha-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Info de vencimento */
+.info-vencimento {
+  font-size: 0.7rem;
+  color: var(--texto-terciario);
+  background-color: rgba(0, 212, 255, 0.04);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.info-vencimento.vencimento-urgente {
+  color: var(--aviso);
+  border-color: rgba(245, 158, 11, 0.35);
+  background-color: rgba(245, 158, 11, 0.08);
+}
+
+/* Info do trial */
+.info-trial {
+  font-size: 0.7rem;
+  color: var(--perigo);
+  background-color: rgba(255, 77, 106, 0.08);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 77, 106, 0.25);
+}
+
+/* ─── Seta ────────────────────────────────────────────────── */
+.card-seta {
+  display: flex;
+  align-items: center;
+  padding: 0 0.85rem;
+  font-size: 1.2rem;
+  color: var(--texto-terciario);
+  transition: color 0.2s ease, transform 0.2s ease, text-shadow 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.card-assinatura:hover .card-seta {
+  color: var(--cor-cat, var(--acento));
+  transform: translateX(4px);
+  text-shadow: 0 0 10px var(--cor-cat, rgba(0, 212, 255, 0.8));
+}

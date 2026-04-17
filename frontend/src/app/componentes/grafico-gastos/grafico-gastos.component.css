@@ -1,0 +1,100 @@
+/* ─── Card do Gráfico ─────────────────────────────────────── */
+.grafico-card {
+  padding: 1.5rem 1.5rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.grafico-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #3b82f6 40%, #00d4ff 60%, transparent 100%);
+  opacity: 0.7;
+}
+
+/* ─── Cabeçalho ───────────────────────────────────────────── */
+.grafico-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.grafico-titulo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--texto-primario);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.grafico-subtitulo {
+  font-size: 0.75rem;
+  color: var(--texto-terciario);
+  margin-top: 0.2rem;
+}
+
+/* Badge total */
+.grafico-total-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+}
+
+.total-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--texto-terciario);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.total-valor {
+  font-size: 1rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #3b82f6, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Canvas ──────────────────────────────────────────────── */
+.grafico-area {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.grafico-area canvas {
+  max-height: 300px;
+  filter: drop-shadow(0 0 16px rgba(0, 212, 255, 0.08));
+}
+
+/* ─── Estado Vazio ────────────────────────────────────────── */
+.grafico-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 140px;
+  color: var(--texto-terciario);
+  font-size: 0.875rem;
+}
+
+.grafico-vazio-icone {
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+/* ─── Responsividade ──────────────────────────────────────── */
+@media (max-width: 500px) {
+  .grafico-area canvas {
+    max-height: 240px;
+  }
+}

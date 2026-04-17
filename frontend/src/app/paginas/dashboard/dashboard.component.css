@@ -1,0 +1,220 @@
+/* ─── Layout do Dashboard ─────────────────────────────────── */
+.dashboard-container {
+  padding-top: 0.5rem;
+}
+
+/* Cabeçalho da página com título e botão */
+.cabecalho-pagina {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.titulo-pagina {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #e2f0ff 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+}
+
+.subtitulo-pagina {
+  font-size: 0.875rem;
+  color: var(--texto-terciario);
+  margin-top: 0.2rem;
+}
+
+/* ─── Alertas de Trial ────────────────────────────────────── */
+.secao-alertas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.alerta-trial {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+  backdrop-filter: blur(8px);
+}
+
+.alerta-trial.urgente {
+  background-color: rgba(255, 77, 106, 0.1);
+  border-color: rgba(255, 77, 106, 0.4);
+  color: #ff8fa3;
+  box-shadow: 0 0 16px rgba(255, 77, 106, 0.1);
+}
+
+.alerta-trial.critico {
+  background-color: rgba(255, 77, 106, 0.07);
+  border-color: rgba(255, 77, 106, 0.3);
+  color: #ff8fa3;
+}
+
+.alerta-trial.aviso {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fcd34d;
+}
+
+.alerta-icone { font-size: 1.1rem; flex-shrink: 0; }
+.alerta-texto { flex: 1; }
+
+.alerta-btn-detalhes {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 0.8rem;
+  font-family: var(--fonte);
+  cursor: pointer;
+  opacity: 0.8;
+  white-space: nowrap;
+  padding: 0;
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+.alerta-btn-detalhes:hover { opacity: 1; }
+
+/* ─── Grade de Resumo (3 cards) ───────────────────────────── */
+.grade-resumo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.card-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-resumo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--acento), transparent);
+  opacity: 0.5;
+}
+
+.card-resumo-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--acento);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+}
+
+.card-resumo-valor {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00d4ff, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.card-resumo-valor.principal {
+  background: linear-gradient(135deg, #00d4ff, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-resumo-valor.neutro {
+  background: none;
+  -webkit-text-fill-color: var(--texto-primario);
+  color: var(--texto-primario);
+}
+
+.card-resumo-desc {
+  font-size: 0.78rem;
+  color: var(--texto-terciario);
+}
+
+.destaque-trial {
+  color: var(--aviso);
+  font-weight: 500;
+}
+
+/* ─── Seções ──────────────────────────────────────────────── */
+.secao {
+  margin-bottom: 2.5rem;
+}
+
+.titulo-secao {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--texto-primario);
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.desc-secao {
+  font-size: 0.82rem;
+  color: var(--texto-terciario);
+  margin-bottom: 1rem;
+}
+
+.badge-contador {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--acento);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+}
+
+/* ─── Lista de Cards ──────────────────────────────────────── */
+.lista-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.85rem;
+}
+
+/* ─── Responsividade ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .grade-resumo {
+    grid-template-columns: 1fr 1fr;
+  }
+  .card-resumo-valor {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .grade-resumo {
+    grid-template-columns: 1fr;
+  }
+  .cabecalho-pagina {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .lista-cards {
+    grid-template-columns: 1fr;
+  }
+}

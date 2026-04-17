@@ -1,0 +1,79 @@
+<!-- ============================================================
+  Template do Card de Assinatura
+  Exibe nome, categoria, valor e alertas de trial/vencimento
+  ============================================================ -->
+
+<div
+  class="card card-assinatura"
+  [class.trial-urgente]="trialExpirando"
+  [style.--cor-cat]="corCategoria"
+  (click)="aoClicar()"
+  role="button"
+  tabindex="0"
+  (keydown.enter)="aoClicar()"
+  [attr.aria-label]="'Ver detalhes de ' + assinatura.nome">
+
+  <!-- Faixa lateral colorida por categoria -->
+  <div class="faixa-categoria" [style.background-color]="corCategoria"></div>
+
+  <!-- Conteúdo do card -->
+  <div class="card-conteudo">
+
+    <!-- Linha superior: nome e valor -->
+    <div class="card-linha-principal">
+      <div class="card-nome-grupo">
+        <span class="card-nome">{{ assinatura.nome }}</span>
+
+        <!-- Badge Trial -->
+        <span *ngIf="assinatura.is_trial" class="badge-trial">
+          TRIAL
+        </span>
+      </div>
+
+      <!-- Valor da assinatura -->
+      <div class="card-valor-grupo">
+        <span class="card-valor">{{ formatarMoeda(assinatura.valor) }}</span>
+        <span class="card-ciclo">/ {{ assinatura.ciclo_cobranca === 'Mensal' ? 'mês' : 'ano' }}</span>
+      </div>
+    </div>
+
+    <!-- Linha inferior: categoria, vencimento e alertas -->
+    <div class="card-linha-info">
+
+      <!-- Badge de categoria com cor -->
+      <span
+        class="badge-categoria"
+        [style.background-color]="corCategoria + '22'"
+        [style.color]="corCategoria"
+        [style.border]="'1px solid ' + corCategoria + '44'">
+        {{ assinatura.categoria }}
+      </span>
+
+      <!-- Info do próximo vencimento -->
+      <span
+        *ngIf="diasParaRenovacao !== undefined"
+        class="info-vencimento"
+        [class.vencimento-urgente]="diasParaRenovacao <= 3">
+        <ng-container *ngIf="diasParaRenovacao === 0">vence hoje</ng-container>
+        <ng-container *ngIf="diasParaRenovacao === 1">vence amanhã</ng-container>
+        <ng-container *ngIf="diasParaRenovacao > 1">em {{ diasParaRenovacao }}d</ng-container>
+      </span>
+
+      <!-- Info do trial expirando -->
+      <span *ngIf="assinatura.is_trial && assinatura.data_fim_trial" class="info-trial">
+        <ng-container *ngIf="diasRestantesTrial === 0">trial: expira hoje ⚠️</ng-container>
+        <ng-container *ngIf="diasRestantesTrial === 1">trial: 1 dia ⚠️</ng-container>
+        <ng-container *ngIf="diasRestantesTrial > 1 && diasRestantesTrial <= 3">
+          trial: {{ diasRestantesTrial }} dias ⚠️
+        </ng-container>
+        <ng-container *ngIf="diasRestantesTrial > 3">
+          trial até {{ formatarData(assinatura.data_fim_trial) }}
+        </ng-container>
+      </span>
+
+    </div>
+  </div>
+
+  <!-- Seta indicando que é clicável -->
+  <div class="card-seta">›</div>
+</div>

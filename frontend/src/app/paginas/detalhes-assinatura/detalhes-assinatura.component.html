@@ -1,0 +1,293 @@
+<!-- ============================================================
+  Template da Página de Detalhes da Assinatura
+  Exibe dados, permite edição e cancelamento da assinatura
+  ============================================================ -->
+
+<div class="container pagina-detalhes">
+
+  <!-- ── Carregando ─────────────────────────────────────── -->
+  <div *ngIf="carregando" class="carregando">
+    <div class="spinner"></div>
+    <p>Carregando assinatura...</p>
+  </div>
+
+  <!-- ── Erro ───────────────────────────────────────────── -->
+  <div *ngIf="!carregando && mensagemErro && !assinatura" class="alerta-erro" style="margin-top:2rem">
+    <strong>Erro:</strong> {{ mensagemErro }}
+    <br>
+    <button class="btn btn-secundario" style="margin-top:1rem" (click)="voltarParaDashboard()">
+      ← Voltar ao Dashboard
+    </button>
+  </div>
+
+  <!-- ── Conteúdo ───────────────────────────────────────── -->
+  <ng-container *ngIf="!carregando && assinatura">
+
+    <!-- Cabeçalho -->
+    <div class="cabecalho-detalhes">
+      <button class="btn-voltar" (click)="voltarParaDashboard()">← Voltar</button>
+      <div class="titulo-grupo">
+        <!-- Faixa de cor da categoria -->
+        <div class="dot-categoria" [style.background-color]="corCategoria"></div>
+        <div>
+          <h1 class="titulo-pagina">{{ assinatura.nome }}</h1>
+          <p class="subtitulo-pagina">{{ assinatura.categoria }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagem de Sucesso -->
+    <div *ngIf="mensagemSucesso" class="alerta-sucesso">
+      ✅ {{ mensagemSucesso }}
+    </div>
+
+    <!-- Mensagem de Erro Global -->
+    <div *ngIf="mensagemErro" class="alerta-erro" style="margin-bottom:1.5rem">
+      <strong>Erro:</strong> {{ mensagemErro }}
+    </div>
+
+    <!-- ── Modo Visualização ───────────────────────────── -->
+    <ng-container *ngIf="!modoEdicao">
+
+      <!-- Card de Resumo Rápido -->
+      <div class="card resumo-card" [style.border-left-color]="corCategoria">
+        <div class="resumo-valor-grupo">
+          <span class="resumo-valor">{{ formatarMoeda(assinatura.valor) }}</span>
+          <span class="resumo-ciclo">
+            / {{ assinatura.ciclo_cobranca === 'Mensal' ? 'mês' : 'ano' }}
+          </span>
+        </div>
+
+        <div class="resumo-badges">
+          <span
+            class="badge-categoria"
+            [style.background-color]="corCategoria + '22'"
+            [style.color]="corCategoria"
+            [style.border]="'1px solid ' + corCategoria + '44'">
+            {{ assinatura.categoria }}
+          </span>
+
+          <span *ngIf="assinatura.is_trial" class="badge-trial">TRIAL</span>
+
+          <span class="badge-status" [class.ativo]="assinatura.ativo">
+            {{ assinatura.ativo ? 'Ativa' : 'Inativa' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Grid de Informações -->
+      <div class="card info-card">
+        <h2 class="titulo-secao-card">Informações da Assinatura</h2>
+        <div class="grade-info">
+
+          <div class="info-item">
+            <span class="info-label">Nome do Serviço</span>
+            <span class="info-valor">{{ assinatura.nome }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Categoria</span>
+            <span class="info-valor">{{ assinatura.categoria }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Valor</span>
+            <span class="info-valor destaque">{{ formatarMoeda(assinatura.valor) }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Ciclo de Cobrança</span>
+            <span class="info-valor">{{ assinatura.ciclo_cobranca }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="assinatura.data_renovacao">
+            <span class="info-label">Dia de Renovação</span>
+            <span class="info-valor">Todo dia {{ assinatura.data_renovacao }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">É Free Trial?</span>
+            <span class="info-valor" [class.info-trial-sim]="assinatura.is_trial">
+              {{ assinatura.is_trial ? 'Sim' : 'Não' }}
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="assinatura.is_trial && assinatura.data_fim_trial">
+            <span class="info-label">Fim do Trial</span>
+            <span class="info-valor"
+              [class.info-urgente]="diasRestantesTrial >= 0 && diasRestantesTrial <= 3">
+              {{ formatarData(assinatura.data_fim_trial) }}
+              <span *ngIf="diasRestantesTrial >= 0 && diasRestantesTrial <= 3">
+                — ⚠️ {{ diasRestantesTrial === 0 ? 'expira hoje!' : diasRestantesTrial + ' dia(s)!' }}
+              </span>
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="assinatura.criado_em">
+            <span class="info-label">Cadastrado em</span>
+            <span class="info-valor">{{ formatarData(assinatura.criado_em) }}</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="acoes-detalhes">
+
+        <!-- Botão Editar -->
+        <button class="btn btn-primario" (click)="ativarEdicao()">
+          ✏️ Editar Assinatura
+        </button>
+
+        <!-- Botão Cancelar Assinatura (com confirmação) -->
+        <button
+          *ngIf="!confirmarDelete"
+          class="btn btn-perigo"
+          (click)="confirmarDelete = true">
+          🗑️ Cancelar Assinatura
+        </button>
+
+        <!-- Confirmação de exclusão (dois passos para evitar acidente) -->
+        <div *ngIf="confirmarDelete" class="confirmacao-delete">
+          <p class="confirmacao-texto">
+            ⚠️ Tem certeza? Esta ação é <strong>irreversível</strong>. A assinatura será removida permanentemente.
+          </p>
+          <div class="confirmacao-botoes">
+            <button
+              class="btn btn-secundario"
+              (click)="confirmarDelete = false"
+              [disabled]="deletando">
+              Não, manter
+            </button>
+            <button
+              class="btn btn-perigo"
+              (click)="confirmarCancelamento()"
+              [disabled]="deletando">
+              <span *ngIf="deletando" class="spinner-mini"></span>
+              {{ deletando ? 'Removendo...' : 'Sim, cancelar assinatura' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+    <!-- /Modo Visualização -->
+
+    <!-- ── Modo Edição ─────────────────────────────────── -->
+    <ng-container *ngIf="modoEdicao">
+
+      <form [formGroup]="formulario" (ngSubmit)="salvarEdicao()" class="card form-card" novalidate>
+
+        <h2 class="titulo-secao-card" style="margin-bottom:1.25rem">Editar Assinatura</h2>
+
+        <div class="grade-campos">
+
+          <!-- Nome (com autocomplete) -->
+          <div class="campo-form col-span-2 campo-nome-wrapper">
+            <label for="nome-edit">Nome do Serviço *</label>
+            <input id="nome-edit" type="text" formControlName="nome"
+              autocomplete="off"
+              (input)="aoDigitarNome($event)"
+              (blur)="aoDesfocarNome()"
+              [class.campo-erro]="campoInvalido('nome')">
+            <div class="sugestoes-dropdown" *ngIf="mostrarSugestoes">
+              <button type="button" class="sugestao-item"
+                *ngFor="let s of sugestoesFiltradas"
+                (click)="selecionarSugestao(s)">
+                <span>{{ s.icone }}</span>
+                <span class="sugestao-nome">{{ s.nome }}</span>
+                <span class="sugestao-categoria">{{ s.categoria }}</span>
+              </button>
+            </div>
+            <span class="erro-campo" *ngIf="campoInvalido('nome')">{{ mensagemErroCampo('nome') }}</span>
+          </div>
+
+          <!-- Categoria -->
+          <div class="campo-form">
+            <label for="categoria-edit">Categoria *</label>
+            <select id="categoria-edit" formControlName="categoria">
+              <option *ngFor="let cat of categorias" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+
+          <!-- Valor (campo destacado para facilitar reajuste) -->
+          <div class="campo-form">
+            <label for="valor-edit">Valor (R$) *</label>
+            <input id="valor-edit" type="number" formControlName="valor"
+              min="0.01" step="0.01"
+              [class.campo-erro]="campoInvalido('valor')">
+            <span class="dica-campo">Atualize em caso de reajuste de plano</span>
+            <span class="erro-campo" *ngIf="campoInvalido('valor')">{{ mensagemErroCampo('valor') }}</span>
+          </div>
+
+          <!-- Ciclo de Cobrança -->
+          <div class="campo-form">
+            <label>Ciclo de Cobrança *</label>
+            <div class="grupo-radio">
+              <label class="opcao-radio">
+                <input type="radio" formControlName="ciclo_cobranca" value="Mensal">
+                <span class="radio-label">Mensal</span>
+              </label>
+              <label class="opcao-radio">
+                <input type="radio" formControlName="ciclo_cobranca" value="Anual">
+                <span class="radio-label">Anual</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Dia de Renovação -->
+          <div class="campo-form">
+            <label for="renovacao-edit">Dia da Cobrança</label>
+            <select id="renovacao-edit" formControlName="data_renovacao">
+              <option [ngValue]="null">Não definido</option>
+              <option *ngFor="let dia of diasDoMes" [value]="dia">Dia {{ dia }}</option>
+            </select>
+          </div>
+
+          <!-- Toggle Trial -->
+          <div class="campo-form col-span-2">
+            <div class="secao-trial">
+              <label class="toggle-label">
+                <div class="toggle-info">
+                  <span class="toggle-titulo">Período de Teste Gratuito</span>
+                  <span class="toggle-desc">Marque se ainda está em trial</span>
+                </div>
+                <div class="toggle-switch">
+                  <input type="checkbox" formControlName="is_trial" class="toggle-input">
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Data fim do trial -->
+          <div class="campo-form col-span-2 campo-trial-data" *ngIf="ehTrial">
+            <label for="trial-edit">Data de Encerramento do Trial *</label>
+            <input id="trial-edit" type="date" formControlName="data_fim_trial"
+              [class.campo-erro]="campoInvalido('data_fim_trial')">
+            <span class="erro-campo" *ngIf="campoInvalido('data_fim_trial')">{{ mensagemErroCampo('data_fim_trial') }}</span>
+          </div>
+
+        </div>
+
+        <!-- Botões -->
+        <div class="form-acoes">
+          <button type="button" class="btn btn-secundario"
+            (click)="cancelarEdicao()" [disabled]="salvando">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primario" [disabled]="salvando">
+            <span *ngIf="salvando" class="spinner-mini"></span>
+            {{ salvando ? 'Salvando...' : 'Salvar Alterações' }}
+          </button>
+        </div>
+
+      </form>
+
+    </ng-container>
+    <!-- /Modo Edição -->
+
+  </ng-container>
+  <!-- /Conteúdo -->
+
+</div>

@@ -1,0 +1,153 @@
+<!-- ============================================================
+  Template da Tela Principal — Dashboard
+  Exibe: resumo financeiro, alertas de trial, gráfico e lista de faturas
+  ============================================================ -->
+
+<div class="dashboard-container container">
+
+  <!-- ── Estado de Carregamento ───────────────────────────── -->
+  <div *ngIf="carregando" class="carregando">
+    <div class="spinner"></div>
+    <p>Carregando seus dados financeiros...</p>
+  </div>
+
+  <!-- ── Estado de Erro ───────────────────────────────────── -->
+  <div *ngIf="!carregando && mensagemErro" class="alerta-erro" style="margin-top:2rem">
+    <strong>⚠️ Erro ao carregar dados:</strong> {{ mensagemErro }}
+    <br>
+    <button class="btn btn-secundario" style="margin-top:1rem" (click)="carregarDados()">
+      Tentar novamente
+    </button>
+  </div>
+
+  <!-- ── Conteúdo Principal ───────────────────────────────── -->
+  <ng-container *ngIf="!carregando && !mensagemErro">
+
+    <!-- ─ Cabeçalho da Página ─────────────────────────────── -->
+    <div class="cabecalho-pagina">
+      <div>
+        <h1 class="titulo-pagina">Dashboard</h1>
+        <p class="subtitulo-pagina">Visão geral dos seus gastos com assinaturas</p>
+      </div>
+      <button class="btn btn-primario" (click)="navegarParaNovaAssinatura()">
+        + Nova Assinatura
+      </button>
+    </div>
+
+    <!-- ─ Alertas de Trial Expirando ──────────────────────── -->
+    <div *ngIf="trialsExpirandoLogo.length > 0" class="secao-alertas">
+      <div
+        *ngFor="let trial of trialsExpirandoLogo"
+        class="alerta-trial"
+        [ngClass]="classeTrial(calcularDiasParaExpirar(trial.data_fim_trial!))">
+
+        <span class="alerta-icone">🔔</span>
+        <div class="alerta-texto">
+          <strong>{{ trial.nome }}</strong>
+          <ng-container [ngSwitch]="calcularDiasParaExpirar(trial.data_fim_trial!)">
+            <span *ngSwitchCase="0">expira <strong>HOJE</strong>! Cancele ou assine para evitar cobrança.</span>
+            <span *ngSwitchCase="1">expira <strong>amanhã</strong>! Você tem 1 dia para agir.</span>
+            <span *ngSwitchDefault>
+              expira em <strong>{{ calcularDiasParaExpirar(trial.data_fim_trial!) }} dias</strong>.
+            </span>
+          </ng-container>
+        </div>
+
+        <button class="alerta-btn-detalhes" (click)="navegarParaDetalhes(trial.id)">
+          Ver detalhes →
+        </button>
+      </div>
+    </div>
+
+    <!-- ─ Cards de Resumo Financeiro ──────────────────────── -->
+    <div class="grade-resumo">
+
+      <div class="card card-resumo">
+        <div class="card-resumo-label">Total Mensal</div>
+        <div class="card-resumo-valor principal">{{ formatarMoeda(custoMensalTotal) }}</div>
+        <div class="card-resumo-desc">somando todos os ciclos</div>
+      </div>
+
+      <div class="card card-resumo">
+        <div class="card-resumo-label">Projeção Anual</div>
+        <div class="card-resumo-valor">{{ formatarMoeda(custoAnualProjetado) }}</div>
+        <div class="card-resumo-desc">se nada mudar em 12 meses</div>
+      </div>
+
+      <div class="card card-resumo">
+        <div class="card-resumo-label">Assinaturas Ativas</div>
+        <div class="card-resumo-valor neutro">{{ assinaturas.length }}</div>
+        <div class="card-resumo-desc">
+          <span *ngIf="quantidadeTrials > 0" class="destaque-trial">
+            {{ quantidadeTrials }} em período de teste
+          </span>
+          <span *ngIf="quantidadeTrials === 0">sem trials ativos</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ─ Estado Vazio (sem assinaturas cadastradas) ────────── -->
+    <div *ngIf="assinaturas.length === 0" class="estado-vazio">
+      <div class="icone-vazio">🐺</div>
+      <h2>Nenhuma assinatura cadastrada ainda</h2>
+      <p>Comece adicionando seus serviços para ter controle total dos seus gastos.</p>
+      <button class="btn btn-primario" (click)="navegarParaNovaAssinatura()">
+        + Adicionar primeira assinatura
+      </button>
+    </div>
+
+    <!-- ─ Conteúdo com Dados ──────────────────────────────── -->
+    <ng-container *ngIf="assinaturas.length > 0">
+
+      <!-- Gráfico de Gastos por Categoria -->
+      <div class="secao" *ngIf="Object.keys(gastosPorCategoria).length > 0">
+        <h2 class="titulo-secao">Gastos por Categoria</h2>
+        <app-grafico-gastos
+          [gastosPorCategoria]="gastosPorCategoria">
+        </app-grafico-gastos>
+      </div>
+
+      <!-- Próximas Faturas (15 dias) -->
+      <div class="secao" *ngIf="fatutasProximas15Dias.length > 0">
+        <h2 class="titulo-secao">
+          Próximas Faturas
+          <span class="badge-contador">{{ fatutasProximas15Dias.length }}</span>
+        </h2>
+        <p class="desc-secao">Cobranças previstas para os próximos 15 dias</p>
+
+        <div class="lista-cards">
+          <app-card-assinatura
+            *ngFor="let assinatura of fatutasProximas15Dias"
+            [assinatura]="assinatura"
+            [diasParaRenovacao]="calcularDiasParaRenovacao(assinatura.data_renovacao!)"
+            (clicado)="navegarParaDetalhes(assinatura.id)">
+          </app-card-assinatura>
+        </div>
+      </div>
+
+      <!-- Todas as Assinaturas -->
+      <div class="secao">
+        <h2 class="titulo-secao">
+          Todas as Assinaturas
+          <span class="badge-contador">{{ assinaturas.length }}</span>
+        </h2>
+
+        <div class="lista-cards">
+          <app-card-assinatura
+            *ngFor="let assinatura of assinaturas"
+            [assinatura]="assinatura"
+            [diasParaRenovacao]="assinatura.data_renovacao ? calcularDiasParaRenovacao(assinatura.data_renovacao) : undefined"
+            (clicado)="navegarParaDetalhes(assinatura.id)">
+          </app-card-assinatura>
+        </div>
+      </div>
+
+    </ng-container>
+    <!-- /Conteúdo com Dados -->
+
+  </ng-container>
+  <!-- /Conteúdo Principal -->
+
+</div>
+<!-- /dashboard-container -->

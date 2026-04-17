@@ -1,0 +1,50 @@
+<!-- ============================================================
+  Template do Componente Raiz
+  Barra de navegação fixa + área de conteúdo das rotas
+  ============================================================ -->
+
+<!-- Barra de Navegação Superior -->
+<nav class="navbar">
+  <div class="navbar-container">
+
+    <!-- Logo / Nome do App -->
+    <a class="navbar-logo" routerLink="/dashboard">
+      <span class="logo-icone"></span>
+      <span class="logo-texto"><strong>Kua</strong></span>
+    </a>
+
+    <!-- Links de Navegação (Desktop) -->
+    <ul class="navbar-links">
+      <li>
+        <a routerLink="/dashboard"
+           routerLinkActive="ativo"
+           [routerLinkActiveOptions]="{ exact: true }">
+          Dashboard
+        </a>
+      </li>
+    </ul>
+
+    <!-- Botão Adicionar Assinatura -->
+    <button class="btn btn-primario btn-adicionar" (click)="irParaNovaAssinatura()">
+      <span>+</span> Nova Assinatura
+    </button>
+
+    <!-- Botão Menu Mobile -->
+    <button class="btn-menu-mobile" (click)="alternarMenu()" aria-label="Abrir menu">
+      <span class="hamburger" [class.aberto]="menuAberto">☰</span>
+    </button>
+  </div>
+
+  <!-- Menu Mobile (aparece quando menuAberto = true) -->
+  <div class="menu-mobile" [class.visivel]="menuAberto">
+    <a routerLink="/dashboard" class="menu-mobile-link">Dashboard</a>
+    <a routerLink="/nova-assinatura" class="menu-mobile-link btn-mobile-adicionar">
+      + Nova Assinatura
+    </a>
+  </div>
+</nav>
+
+<!-- Área de Conteúdo — renderiza a página da rota ativa -->
+<main class="conteudo-principal">
+  <router-outlet></router-outlet>
+</main>
