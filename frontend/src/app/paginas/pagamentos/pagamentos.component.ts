@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AssinaturaService } from '../../servicos/assinatura.service';
-import { Assinatura, COR_POR_CATEGORIA, getLogoUrl } from '../../modelos/assinatura.model';
+import { Assinatura } from '../../modelos/assinatura.model';
+import { COR_POR_CATEGORIA, getLogoUrl } from '../../modelos/assinatura.dados';
 import { Router } from '@angular/router';
 
 interface EventoCalendario {

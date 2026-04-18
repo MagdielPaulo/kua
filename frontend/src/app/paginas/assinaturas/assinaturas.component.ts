@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router }            from '@angular/router';
 import { AssinaturaService } from '../../servicos/assinatura.service';
-import { Assinatura, COR_POR_CATEGORIA, CATEGORIAS } from '../../modelos/assinatura.model';
+import { Assinatura }        from '../../modelos/assinatura.model';
+import { CATEGORIAS, COR_POR_CATEGORIA } from '../../modelos/assinatura.dados';
+import { formatarMoeda }     from '../../utilitarios/assinatura.utils';
 
 @Component({
   selector:    'app-assinaturas',
@@ -10,10 +12,10 @@ import { Assinatura, COR_POR_CATEGORIA, CATEGORIAS } from '../../modelos/assinat
 })
 export class AssinaturasComponent implements OnInit {
 
-  assinaturas:    Assinatura[] = [];
-  filtradas:      Assinatura[] = [];
-  carregando      = true;
-  mensagemErro    = '';
+  assinaturas: Assinatura[] = [];
+  filtradas:   Assinatura[] = [];
+  carregando   = true;
+  mensagemErro = '';
 
   filtroCategoria = 'Todas';
   filtroBusca     = '';
@@ -27,40 +29,34 @@ export class AssinaturasComponent implements OnInit {
 
   ngOnInit(): void {
     this.assinaturaService.listarTodas().subscribe({
-      next: (dados) => {
+      next: dados => {
         this.assinaturas = dados.filter(a => a.ativo);
         this.aplicarFiltro();
         this.carregando = false;
       },
-      error: (e) => { this.mensagemErro = e.message; this.carregando = false; },
+      error: e => { this.mensagemErro = e.message; this.carregando = false; },
     });
   }
 
   aplicarFiltro(): void {
     const busca = this.filtroBusca.toLowerCase().trim();
     this.filtradas = this.assinaturas.filter(a => {
-      const ok = this.filtroCategoria === 'Todas' || a.categoria === this.filtroCategoria;
-      const match = !busca || a.nome.toLowerCase().includes(busca) || a.categoria.toLowerCase().includes(busca);
-      return ok && match;
+      const categoriaOk = this.filtroCategoria === 'Todas' || a.categoria === this.filtroCategoria;
+      const buscaOk     = !busca || a.nome.toLowerCase().includes(busca) || a.categoria.toLowerCase().includes(busca);
+      return categoriaOk && buscaOk;
     });
   }
 
-  get totalFiltradas(): number {
-    return this.filtradas.reduce((t, a) => {
+  get totalMensalFiltrado(): number {
+    return this.filtradas.reduce((total, a) => {
       const v = Number(a.valor) || 0;
-      return t + (a.ciclo_cobranca === 'Mensal' ? v : v / 12);
+      return total + (a.ciclo_cobranca === 'Mensal' ? v : v / 12);
     }, 0);
   }
 
-  formatarMoeda(v: number): string {
-    return (Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-  }
+  corCategoria(cat: string): string { return COR_POR_CATEGORIA[cat] ?? '#6b7280'; }
+  formatarMoeda = formatarMoeda;
 
-  corCategoria(cat: string): string { return COR_POR_CATEGORIA[cat]||'#6b7280'; }
-
-  navegarParaDetalhes(id?: number): void {
-    if (id) this.router.navigate(['/assinatura', id]);
-  }
-
+  navegarParaDetalhes(id?: number): void { if (id) this.router.navigate(['/assinatura', id]); }
   navegarParaNova(): void { this.router.navigate(['/nova-assinatura']); }
 }

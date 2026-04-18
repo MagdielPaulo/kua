@@ -23,12 +23,13 @@
     <div class="card-linha-principal">
       <div class="card-nome-grupo">
         <!-- Logo do serviço -->
-        <div class="card-logo-wrap" [style.background-color]="corCategoria + '18'" [style.border-color]="corCategoria + '33'">
+        <div class="card-logo-wrap" [style.border-color]="corCategoria + '33'">
           <img *ngIf="logoUrl" [src]="logoUrl" [alt]="assinatura.nome"
                class="card-logo-img" (error)="logoErro($any($event.target))">
-          <span class="logo-fallback" [style.display]="logoUrl ? 'none' : 'flex'"
-                [style.color]="corCategoria">
-            {{ assinatura.nome.charAt(0) }}
+          <span class="logo-avatar"
+                [style.display]="logoUrl ? 'none' : 'flex'"
+                [style.background]="'linear-gradient(135deg, ' + avatarGradient[0] + ', ' + avatarGradient[1] + ')'">
+            {{ assinatura.nome.charAt(0).toUpperCase() }}
           </span>
         </div>
 
@@ -62,17 +63,15 @@
         *ngIf="diasParaRenovacao !== undefined"
         class="info-vencimento"
         [class.vencimento-urgente]="diasParaRenovacao <= 3">
-        <ng-container *ngIf="diasParaRenovacao === 0">vence hoje</ng-container>
-        <ng-container *ngIf="diasParaRenovacao === 1">vence amanhã</ng-container>
-        <ng-container *ngIf="diasParaRenovacao > 1">em {{ diasParaRenovacao }}d</ng-container>
+        {{ labelRenovacao }}
       </span>
 
       <!-- Info do trial expirando -->
       <span *ngIf="assinatura.is_trial && assinatura.data_fim_trial" class="info-trial">
-        <ng-container *ngIf="diasRestantesTrial === 0">trial: expira hoje ⚠️</ng-container>
-        <ng-container *ngIf="diasRestantesTrial === 1">trial: 1 dia ⚠️</ng-container>
+        <ng-container *ngIf="diasRestantesTrial === 0">trial: expira hoje !</ng-container>
+        <ng-container *ngIf="diasRestantesTrial === 1">trial: 1 dia !</ng-container>
         <ng-container *ngIf="diasRestantesTrial > 1 && diasRestantesTrial <= 3">
-          trial: {{ diasRestantesTrial }} dias ⚠️
+          trial: {{ diasRestantesTrial }} dias !
         </ng-container>
         <ng-container *ngIf="diasRestantesTrial > 3">
           trial até {{ formatarData(assinatura.data_fim_trial) }}

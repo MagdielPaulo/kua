@@ -1,75 +1,21 @@
 import {
-  Component,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
+  Component, Input, OnChanges, SimpleChanges,
+  ViewChild, ElementRef, AfterViewInit, OnDestroy, NgZone,
 } from '@angular/core';
-import { Chart, ChartConfiguration, registerables, Plugin } from 'chart.js';
+import * as THREE from 'three';
 
-import { Assinatura, COR_POR_CATEGORIA, getLogoUrl } from '../../modelos/assinatura.model';
+import { Assinatura } from '../../modelos/assinatura.model';
+import { COR_POR_CATEGORIA, getLogoUrl, getAvatarGradient } from '../../modelos/assinatura.dados';
 
-Chart.register(...registerables);
-
-const pluginCentro: Plugin<'doughnut'> = {
-  id: 'pluginCentro',
-  afterDraw(chart) {
-    const { ctx, chartArea } = chart;
-    if (!chartArea) return;
-
-    const cx = (chartArea.left + chartArea.right) / 2;
-    const cy = (chartArea.top + chartArea.bottom) / 2;
-
-    const dataset = chart.data.datasets?.[0];
-    if (!dataset) return;
-    const total = (dataset.data as number[])
-      .reduce((acc, v) => acc + (Number(v) || 0), 0);
-
-    const selecionado = (chart as any)._categoriaAtiva as string | null;
-    const labelTop = selecionado ? selecionado.toUpperCase() : 'MENSAL';
-
-    let valorExibir = total;
-    if (selecionado) {
-      const idx = (chart.data.labels as string[]).indexOf(selecionado);
-      if (idx >= 0) valorExibir = Number(dataset.data[idx]) || 0;
-    }
-
-    const formatado = valorExibir.toLocaleString('pt-BR', {
-      style: 'currency', currency: 'BRL',
-    });
-
-    ctx.save();
-    ctx.font = '600 10px Inter, sans-serif';
-    ctx.fillStyle = selecionado ? '#22d3ee' : '#4a7a9b';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(labelTop, cx, cy - 13);
-
-    const grad = ctx.createLinearGradient(cx - 40, 0, cx + 40, 0);
-    grad.addColorStop(0, selecionado ? '#22d3ee' : '#3b82f6');
-    grad.addColorStop(1, selecionado ? '#67e8f9' : '#00d4ff');
-
-    ctx.font = '800 15px Inter, sans-serif';
-    ctx.fillStyle = grad;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(formatado, cx, cy + 7);
-    ctx.restore();
-  },
-};
-
-const PALETA: Record<string, [string, string]> = {
-  Streaming: ['#a855f7', '#c084fc'],
-  IA:        ['#00d4ff', '#67e8f9'],
-  Educação:  ['#00e5a0', '#6ee7b7'],
-  Software:  ['#f59e0b', '#fcd34d'],
-  Jogos:     ['#ff4d6a', '#ff8fa3'],
-  Saúde:     ['#f472b6', '#f9a8d4'],
-  Finanças:  ['#14b8a6', '#5eead4'],
-  Outros:    ['#4a7a9b', '#7ba8cc'],
+const PALETA: Record<string, string> = {
+  'Streaming':               '#a855f7',
+  'Inteligência Artificial': '#22d3ee',
+  'Educação e Idiomas':      '#10b981',
+  'Softwares/Ferramentas':   '#f59e0b',
+  'Jogos':                   '#ef4444',
+  'Saúde e Bem-estar':       '#ec4899',
+  'Finanças':                '#14b8a6',
+  'Outros':                  '#6b7280',
 };
 
 @Component({
@@ -82,11 +28,24 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
   @Input() gastosPorCategoria: { [categoria: string]: number } = {};
   @Input() assinaturas: Assinatura[] = [];
 
-  @ViewChild('canvasGrafico') canvasRef!: ElementRef<HTMLCanvasElement>;
-
-  private grafico: Chart<'doughnut'> | null = null;
+  @ViewChild('canvas3dPie') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   segmentoAtivo: string | null = null;
+  legendaEntradas: { label: string; cor: string; valor: number; pct: string }[] = [];
+
+  private renderer: THREE.WebGLRenderer | null = null;
+  private scene!: THREE.Scene;
+  private camera!: THREE.PerspectiveCamera;
+  private pieGroup!: THREE.Group;
+  private sliceMeshes: THREE.Mesh[] = [];
+  private sliceMeta: { categoria: string }[] = [];
+  private raycaster = new THREE.Raycaster();
+  private mouse     = new THREE.Vector2();
+  private animId: number | null = null;
+  private entradaT  = 0;
+  private pausarRot = false;
+
+  constructor(private ngZone: NgZone) {}
 
   get assinaturasDaCategoria(): Assinatura[] {
     if (!this.segmentoAtivo) return [];
@@ -100,24 +59,68 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
     return total > 0 ? ((val / total) * 100).toFixed(1) : '0';
   }
 
+  get totalMensal(): string {
+    const t = Object.values(this.gastosPorCategoria).reduce((a, b) => a + (Number(b) || 0), 0);
+    return t.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  get temDados(): boolean {
+    return Object.keys(this.gastosPorCategoria).length > 0;
+  }
+
+  get quantidadeCategorias(): number {
+    return Object.keys(this.gastosPorCategoria).length;
+  }
+
   ngAfterViewInit(): void {
-    this.criarOuAtualizarGrafico();
+    if (this.temDados && this.canvasRef) {
+      this.inicializarCena();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['gastosPorCategoria'] && !changes['gastosPorCategoria'].firstChange) {
-      this.segmentoAtivo = null;
-      this.criarOuAtualizarGrafico();
+    if (!changes['gastosPorCategoria'] || changes['gastosPorCategoria'].firstChange) return;
+    this.ngZone.run(() => { this.segmentoAtivo = null; });
+    if (this.renderer) {
+      this.reconstruirSlices();
+    } else if (this.temDados) {
+      setTimeout(() => { if (this.canvasRef) this.inicializarCena(); });
     }
   }
 
   ngOnDestroy(): void {
-    this.destruirGrafico();
+    if (this.animId !== null) cancelAnimationFrame(this.animId);
+    this.renderer?.dispose();
   }
 
   fecharDetalhe(): void {
-    this.segmentoAtivo = null;
-    this.atualizarOffsets();
+    this.selecionarSegmento(null);
+  }
+
+  selecionarSegmento(cat: string | null): void {
+    this.segmentoAtivo = cat;
+    this.pausarRot     = cat !== null;
+    this.atualizarSlices();
+  }
+
+  aoClicarCanvas(event: MouseEvent): void {
+    if (!this.renderer || !this.sliceMeshes.length) return;
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    this.mouse.x =  ((event.clientX - rect.left) / rect.width)  * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top)  / rect.height) * 2 + 1;
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const hits = this.raycaster.intersectObjects(this.sliceMeshes);
+    this.ngZone.run(() => {
+      if (hits.length > 0) {
+        const idx = this.sliceMeshes.indexOf(hits[0].object as THREE.Mesh);
+        if (idx >= 0) {
+          const cat = this.sliceMeta[idx].categoria;
+          this.selecionarSegmento(this.segmentoAtivo === cat ? null : cat);
+        }
+      } else {
+        this.selecionarSegmento(null);
+      }
+    });
   }
 
   valorMensal(a: Assinatura): number {
@@ -131,147 +134,134 @@ export class GraficoGastosComponent implements AfterViewInit, OnChanges, OnDestr
 
   logoUrl(nome: string): string { return getLogoUrl(nome); }
   logoErro(img: HTMLImageElement): void { img.style.display = 'none'; }
+  corSegmento(cat: string): string { return PALETA[cat] ?? COR_POR_CATEGORIA[cat] ?? '#6b7280'; }
+  readonly getAvatarGradient = getAvatarGradient;
 
-  corSegmento(cat: string): string {
-    return PALETA[cat]?.[0] ?? COR_POR_CATEGORIA[cat] ?? '#4a7a9b';
+  private inicializarCena(): void {
+    const el = this.canvasRef.nativeElement;
+    const w  = el.clientWidth  || 360;
+    const h  = el.clientHeight || 280;
+
+    this.scene    = new THREE.Scene();
+    this.pieGroup = new THREE.Group();
+    this.scene.add(this.pieGroup);
+
+    this.camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
+    this.camera.position.set(0, 2.6, 3.2);
+    this.camera.lookAt(0, 0, 0);
+
+    this.renderer = new THREE.WebGLRenderer({ canvas: el, alpha: true, antialias: true });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setSize(w, h);
+    this.renderer.setClearColor(0x000000, 0);
+
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 1.0);
+    key.position.set(3, 5, 4);
+    this.scene.add(key);
+    const fill = new THREE.DirectionalLight(0x6699ff, 0.3);
+    fill.position.set(-3, 1, -2);
+    this.scene.add(fill);
+
+    this.construirSlices();
+    this.iniciarLoop();
   }
 
-  private atualizarOffsets(): void {
-    if (!this.grafico) return;
-    const cats = this.grafico.data.labels as string[];
-    (this.grafico.data.datasets[0] as any).offset =
-      cats.map(c => c === this.segmentoAtivo ? 18 : 0);
-    (this.grafico as any)._categoriaAtiva = this.segmentoAtivo;
-    this.grafico.update('active');
+  private construirSlices(): void {
+    this.sliceMeshes.forEach(m => {
+      this.pieGroup.remove(m);
+      m.geometry.dispose();
+      (m.material as THREE.Material).dispose();
+    });
+    this.sliceMeshes = [];
+    this.sliceMeta   = [];
+
+    const cats  = Object.keys(this.gastosPorCategoria);
+    const vals  = cats.map(c => Number(this.gastosPorCategoria[c]) || 0);
+    const total = vals.reduce((a, b) => a + b, 0);
+    if (total <= 0) return;
+
+    this.legendaEntradas = cats.map((cat, i) => ({
+      label: cat,
+      cor:   PALETA[cat] ?? COR_POR_CATEGORIA[cat] ?? '#6b7280',
+      valor: vals[i],
+      pct:   ((vals[i] / total) * 100).toFixed(1),
+    }));
+
+    const GAP = 0.025;
+    let   ang = 0;
+
+    cats.forEach((cat, i) => {
+      const fraction = vals[i] / total;
+      const span     = fraction * Math.PI * 2;
+      const mid      = ang + span / 2;
+
+      const geo = new THREE.CylinderGeometry(
+        1, 1, 0.3, 80, 1, false,
+        ang + GAP / 2,
+        Math.max(0.01, span - GAP),
+      );
+
+      const cor = new THREE.Color(PALETA[cat] ?? COR_POR_CATEGORIA[cat] ?? '#6b7280');
+      const mat = new THREE.MeshPhongMaterial({
+        color:             cor,
+        emissive:          cor,
+        emissiveIntensity: 0.18,
+        shininess:         65,
+        specular:          new THREE.Color('#aaaaaa'),
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.userData = {
+        categoria: cat,
+        popOffset: new THREE.Vector3(
+          Math.cos(mid) * 0.22,
+          0,
+          Math.sin(mid) * 0.22,
+        ),
+      };
+
+      this.pieGroup.add(mesh);
+      this.sliceMeshes.push(mesh);
+      this.sliceMeta.push({ categoria: cat });
+
+      ang += span;
+    });
+
+    this.entradaT = 0;
   }
 
-  private criarOuAtualizarGrafico(): void {
-    if (!this.canvasRef) return;
-
-    const categorias = Object.keys(this.gastosPorCategoria);
-    const valores    = Object.values(this.gastosPorCategoria).map(v => Number(v) || 0);
-
-    const coresFundo = categorias.map(c => (PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b') + 'bb');
-    const coresBorda = categorias.map(c =>  PALETA[c]?.[0] ?? COR_POR_CATEGORIA[c] ?? '#4a7a9b');
-    const coresHover = categorias.map(c =>  PALETA[c]?.[1] ?? COR_POR_CATEGORIA[c] ?? '#7ba8cc');
-
-    this.destruirGrafico();
-
-    const config: ChartConfiguration<'doughnut'> = {
-      type: 'doughnut',
-      plugins: [pluginCentro],
-      data: {
-        labels:   categorias,
-        datasets: [{
-          data:                 valores,
-          backgroundColor:      coresFundo,
-          borderColor:          coresBorda,
-          hoverBackgroundColor: coresHover,
-          borderWidth:          2,
-          hoverBorderWidth:     3,
-          hoverOffset:          6,
-          borderAlign:          'inner',
-          offset:               new Array(categorias.length).fill(0),
-        } as any],
-      },
-      options: {
-        responsive:          true,
-        maintainAspectRatio: true,
-        cutout:              '68%',
-        animation: {
-          animateRotate: true,
-          animateScale:  true,
-          duration:      900,
-          easing:        'easeInOutQuart',
-        },
-        onClick: (_evt, elements) => {
-          if (elements.length === 0) {
-            this.segmentoAtivo = null;
-          } else {
-            const idx = elements[0].index;
-            const cat = categorias[idx];
-            this.segmentoAtivo = this.segmentoAtivo === cat ? null : cat;
-          }
-          this.atualizarOffsets();
-        },
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color:         '#7ba8cc',
-              font:          { family: 'Inter', size: 11, weight: 500 },
-              padding:       20,
-              usePointStyle: true,
-              pointStyle:    'circle',
-              generateLabels: (chart) => {
-                const dados = chart.data;
-                if (!dados.labels) return [];
-                return (dados.labels as string[]).map((label, i) => {
-                  const valor = Number(dados.datasets[0].data[i]) || 0;
-                  const total = (dados.datasets[0].data as number[]).reduce((a, b) => a + (Number(b) || 0), 0);
-                  const pct   = total > 0 ? ((valor / total) * 100).toFixed(0) : '0';
-                  const fmt   = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                  return {
-                    text:         `${label}  ${fmt}  (${pct}%)`,
-                    fillStyle:    coresFundo[i],
-                    strokeStyle:  coresBorda[i],
-                    lineWidth:    2,
-                    hidden:       false,
-                    index:        i,
-                    pointStyle:   'circle' as const,
-                    fontColor:    '#7ba8cc',
-                    datasetIndex: 0,
-                  };
-                });
-              },
-            },
-          },
-          tooltip: {
-            backgroundColor: 'rgba(7, 20, 45, 0.95)',
-            borderColor:     'rgba(0, 212, 255, 0.25)',
-            borderWidth:     1,
-            titleColor:      '#e2f0ff',
-            bodyColor:       '#7ba8cc',
-            padding:         14,
-            cornerRadius:    8,
-            titleFont:       { family: 'Inter', size: 13, weight: 700 },
-            bodyFont:        { family: 'Inter', size: 12 },
-            callbacks: {
-              label: (ctx) => {
-                const valor = Number(ctx.parsed) || 0;
-                const total = (ctx.dataset.data as number[]).reduce((a, b) => a + (Number(b) || 0), 0);
-                const fmt   = valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const pct   = total > 0 ? ((valor / total) * 100).toFixed(1) : '0.0';
-                return `  ${fmt}  —  ${pct}%`;
-              },
-              afterLabel: () => '  Clique para ver detalhes',
-            },
-          },
-        },
-      },
-    };
-
-    this.grafico = new Chart(this.canvasRef.nativeElement, config);
-    (this.grafico as any)._categoriaAtiva = null;
+  private reconstruirSlices(): void {
+    this.construirSlices();
+    this.atualizarSlices();
   }
 
-  private destruirGrafico(): void {
-    if (this.grafico) {
-      this.grafico.destroy();
-      this.grafico = null;
-    }
+  private atualizarSlices(): void {
+    this.sliceMeshes.forEach(mesh => {
+      const isActive = mesh.userData['categoria'] === this.segmentoAtivo;
+      const pop      = mesh.userData['popOffset'] as THREE.Vector3;
+      mesh.position.copy(isActive ? pop : new THREE.Vector3());
+      (mesh.material as THREE.MeshPhongMaterial).emissiveIntensity = isActive ? 0.5 : 0.18;
+    });
   }
 
-  get totalMensal(): string {
-    const total = Object.values(this.gastosPorCategoria).reduce((a, b) => a + (Number(b) || 0), 0);
-    return total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
+  private iniciarLoop(): void {
+    this.ngZone.runOutsideAngular(() => {
+      const loop = () => {
+        this.animId = requestAnimationFrame(loop);
 
-  get temDados(): boolean {
-    return Object.keys(this.gastosPorCategoria).length > 0;
-  }
+        if (this.entradaT < 1) {
+          this.entradaT = Math.min(1, this.entradaT + 0.022);
+          this.pieGroup.scale.y = 1 - Math.pow(1 - this.entradaT, 3);
+        }
 
-  get quantidadeCategorias(): number {
-    return Object.keys(this.gastosPorCategoria).length;
+        if (!this.pausarRot) {
+          this.pieGroup.rotation.y += 0.004;
+        }
+
+        this.renderer!.render(this.scene, this.camera);
+      };
+      loop();
+    });
   }
 }

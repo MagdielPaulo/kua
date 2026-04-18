@@ -38,7 +38,7 @@
 
     <!-- Mensagem de Sucesso -->
     <div *ngIf="mensagemSucesso" class="alerta-sucesso">
-      ✅ {{ mensagemSucesso }}
+      {{ mensagemSucesso }}
     </div>
 
     <!-- Mensagem de Erro Global -->
@@ -118,7 +118,7 @@
               [class.info-urgente]="diasRestantesTrial >= 0 && diasRestantesTrial <= 3">
               {{ formatarData(assinatura.data_fim_trial) }}
               <span *ngIf="diasRestantesTrial >= 0 && diasRestantesTrial <= 3">
-                — ⚠️ {{ diasRestantesTrial === 0 ? 'expira hoje!' : diasRestantesTrial + ' dia(s)!' }}
+                — {{ diasRestantesTrial === 0 ? 'expira hoje!' : diasRestantesTrial + ' dia(s)!' }}
               </span>
             </span>
           </div>
@@ -136,7 +136,7 @@
 
         <!-- Botão Editar -->
         <button class="btn btn-primario" (click)="ativarEdicao()">
-          ✏️ Editar Assinatura
+          Editar Assinatura
         </button>
 
         <!-- Botão Cancelar Assinatura (com confirmação) -->
@@ -144,13 +144,13 @@
           *ngIf="!confirmarDelete"
           class="btn btn-perigo"
           (click)="confirmarDelete = true">
-          🗑️ Cancelar Assinatura
+          Cancelar Assinatura
         </button>
 
         <!-- Confirmação de exclusão (dois passos para evitar acidente) -->
         <div *ngIf="confirmarDelete" class="confirmacao-delete">
           <p class="confirmacao-texto">
-            ⚠️ Tem certeza? Esta ação é <strong>irreversível</strong>. A assinatura será removida permanentemente.
+            Tem certeza? Esta ação é <strong>irreversível</strong>. A assinatura será removida permanentemente.
           </p>
           <div class="confirmacao-botoes">
             <button
@@ -194,7 +194,16 @@
               <button type="button" class="sugestao-item"
                 *ngFor="let s of sugestoesFiltradas"
                 (click)="selecionarSugestao(s)">
-                <span>{{ s.icone }}</span>
+                <ng-container *ngIf="getLogoUrl(s.nome); else avatarSugestaoEdit">
+                  <img class="sugestao-logo" [src]="getLogoUrl(s.nome)" [alt]="s.nome"
+                       (error)="$any($event.target).style.display='none'">
+                </ng-container>
+                <ng-template #avatarSugestaoEdit>
+                  <span class="sugestao-avatar"
+                        [style.background]="'linear-gradient(135deg, ' + getAvatarGradient(s.nome)[0] + ', ' + getAvatarGradient(s.nome)[1] + ')'">
+                    {{ s.nome.charAt(0).toUpperCase() }}
+                  </span>
+                </ng-template>
                 <span class="sugestao-nome">{{ s.nome }}</span>
                 <span class="sugestao-categoria">{{ s.categoria }}</span>
               </button>
@@ -237,11 +246,16 @@
 
           <!-- Dia de Renovação -->
           <div class="campo-form">
-            <label for="renovacao-edit">Dia da Cobrança</label>
-            <select id="renovacao-edit" formControlName="data_renovacao">
-              <option [ngValue]="null">Não definido</option>
-              <option *ngFor="let dia of diasDoMes" [value]="dia">Dia {{ dia }}</option>
-            </select>
+            <label>Dia da Cobrança</label>
+            <div class="grade-dias">
+              <button type="button" class="btn-dia btn-dia-nulo"
+                      [class.btn-dia-selecionado]="formulario.get('data_renovacao')?.value === null"
+                      (click)="selecionarDia(null)">—</button>
+              <button type="button" class="btn-dia"
+                      *ngFor="let dia of diasDoMes"
+                      [class.btn-dia-selecionado]="formulario.get('data_renovacao')?.value === dia"
+                      (click)="selecionarDia(dia)">{{ dia }}</button>
+            </div>
           </div>
 
           <!-- Toggle Trial -->

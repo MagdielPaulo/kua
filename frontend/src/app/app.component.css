@@ -128,6 +128,34 @@
   margin: .4rem 0;
 }
 
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .08rem .38rem;
+  border-radius: 999px;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  background: rgba(34,211,238,.15);
+  color: #22d3ee;
+  border: 1px solid rgba(34,211,238,.25);
+  margin-left: .3rem;
+  vertical-align: middle;
+}
+
+.nav-badge--plus {
+  background: rgba(34,211,238,.12);
+  color: #22d3ee;
+  border-color: rgba(34,211,238,.2);
+}
+
+.nav-badge--premium {
+  background: rgba(129,140,248,.15);
+  color: #818cf8;
+  border-color: rgba(129,140,248,.25);
+}
+
 /* CTA button */
 .sidebar-cta {
   padding: .75rem .75rem 1rem;
@@ -263,6 +291,68 @@
 }
 
 .sidebar-overlay.visible { display: block; }
+
+/* ── Tema Claro — Sidebar ───────────────────────────────── */
+:host-context(body.tema-claro) .sidebar {
+  background: rgba(255, 255, 255, 0.85);
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+:host-context(body.tema-claro) .sidebar-logo {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+:host-context(body.tema-claro) .logo-mark {
+  background: rgba(8, 145, 178, 0.07);
+  border-color: rgba(8, 145, 178, 0.18);
+}
+
+:host-context(body.tema-claro) .logo-text {
+  background: linear-gradient(135deg, #0f172a, #0891b2);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:host-context(body.tema-claro) .nav-item {
+  color: #64748b;
+}
+
+:host-context(body.tema-claro) .nav-item:hover {
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.05);
+}
+
+:host-context(body.tema-claro) .nav-item.active {
+  color: #0891b2;
+  background: rgba(8, 145, 178, 0.08);
+  border-color: rgba(8, 145, 178, 0.15);
+}
+
+:host-context(body.tema-claro) .nav-divider {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+:host-context(body.tema-claro) .sidebar-toggle {
+  background: rgba(15, 23, 42, 0.04);
+  border-color: rgba(15, 23, 42, 0.08);
+  color: #64748b;
+}
+
+:host-context(body.tema-claro) .sidebar-toggle:hover {
+  background: rgba(8, 145, 178, 0.08);
+  color: #0891b2;
+}
+
+:host-context(body.tema-claro) .topbar-mobile {
+  background: rgba(248, 250, 252, 0.95);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+:host-context(body.tema-claro) .topbar-logo-text {
+  background: linear-gradient(135deg, #0f172a, #0891b2);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
 
 /* ── Responsivo ─────────────────────────────────────────── */
 @media (max-width: 768px) {

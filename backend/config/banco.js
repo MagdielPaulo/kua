@@ -20,10 +20,10 @@ const pool = new Pool({
 // Testa a conexão ao inicializar para detectar erros de configuração cedo
 pool.connect((erro, cliente, liberarConexao) => {
   if (erro) {
-    console.error('❌ Erro ao conectar ao PostgreSQL:', erro.message);
+    console.error('Erro ao conectar ao PostgreSQL:', erro.message);
     console.error('   Verifique as variáveis no arquivo .env');
   } else {
-    console.log('✅ Conexão com PostgreSQL estabelecida com sucesso!');
+    console.log('Conexão com PostgreSQL estabelecida com sucesso!');
     liberarConexao(); // Devolve a conexão ao pool após o teste
   }
 });

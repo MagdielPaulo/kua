@@ -20,7 +20,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
@@ -62,17 +62,92 @@
   background-clip: text;
 }
 
-/* ─── Canvas ──────────────────────────────────────────────── */
+/* ─── Canvas 3D ───────────────────────────────────────────── */
 .grafico-area {
   position: relative;
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
   cursor: pointer;
 }
 
 .grafico-area canvas {
-  max-height: 300px;
-  filter: drop-shadow(0 0 16px rgba(0, 212, 255, 0.08));
+  width: 100% !important;
+  height: 260px !important;
+  display: block;
+  filter: drop-shadow(0 4px 24px rgba(34, 211, 238, 0.12));
+}
+
+/* ─── Legenda customizada ─────────────────────────────────── */
+.legenda-3d {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 0.75rem;
+}
+
+.legenda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.legenda-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.legenda-item-ativo {
+  background: rgba(0, 212, 255, 0.06) !important;
+  border-color: rgba(0, 212, 255, 0.2) !important;
+}
+
+.legenda-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legenda-nome {
+  flex: 1;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--texto-secundario);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legenda-item-ativo .legenda-nome {
+  color: var(--texto-primario);
+  font-weight: 600;
+}
+
+.legenda-pct {
+  font-size: 0.72rem;
+  color: var(--texto-terciario);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.legenda-valor {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--texto-secundario);
+  width: 72px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.legenda-item-ativo .legenda-valor {
+  color: #22d3ee;
 }
 
 /* ─── Painel de Detalhes ──────────────────────────────────── */
@@ -174,17 +249,17 @@
   background: rgba(255,255,255,.06);
 }
 
-.detalhe-logo-fallback {
+.detalhe-logo-avatar {
   position: absolute;
   inset: 0;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: .75rem;
-  font-weight: 700;
-  color: var(--texto-secundario);
-  background: rgba(255,255,255,.06);
-  border-radius: 6px;
+  font-size: .72rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
   z-index: -1;
 }
 
@@ -236,10 +311,9 @@
 }
 
 .grafico-vazio-icone {
-  font-size: 2rem;
   opacity: 0.3;
 }
 
 @media (max-width: 500px) {
-  .grafico-area canvas { max-height: 240px; }
+  .grafico-area canvas { height: 220px !important; }
 }

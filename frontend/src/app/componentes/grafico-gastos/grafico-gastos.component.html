@@ -11,8 +11,22 @@
     </div>
   </div>
 
+  <!-- Canvas 3D Three.js -->
   <div class="grafico-area">
-    <canvas #canvasGrafico></canvas>
+    <canvas #canvas3dPie (click)="aoClicarCanvas($event)"></canvas>
+  </div>
+
+  <!-- Legenda HTML customizada -->
+  <div class="legenda-3d">
+    <div class="legenda-item"
+         *ngFor="let e of legendaEntradas"
+         [class.legenda-item-ativo]="segmentoAtivo === e.label"
+         (click)="selecionarSegmento(segmentoAtivo === e.label ? null : e.label)">
+      <span class="legenda-dot" [style.background]="e.cor" [style.box-shadow]="'0 0 6px ' + e.cor + '88'"></span>
+      <span class="legenda-nome">{{ e.label }}</span>
+      <span class="legenda-pct">{{ e.pct }}%</span>
+      <span class="legenda-valor">{{ formatarMoeda(e.valor) }}</span>
+    </div>
   </div>
 
   <!-- Painel de detalhes da categoria selecionada -->
@@ -33,7 +47,10 @@
                [src]="logoUrl(a.nome)"
                [alt]="a.nome"
                (error)="logoErro($any($event.target))">
-          <span class="detalhe-logo-fallback">{{ a.nome.charAt(0) }}</span>
+          <span class="detalhe-logo-avatar"
+                [style.background]="'linear-gradient(135deg, ' + getAvatarGradient(a.nome)[0] + ', ' + getAvatarGradient(a.nome)[1] + ')'">
+            {{ a.nome.charAt(0).toUpperCase() }}
+          </span>
         </div>
         <span class="detalhe-nome">{{ a.nome }}</span>
         <span class="detalhe-ciclo">{{ a.ciclo_cobranca === 'Mensal' ? '/mês' : '/ano' }}</span>
@@ -50,7 +67,7 @@
 
 <ng-template #semDados>
   <div class="card grafico-vazio">
-    <span class="grafico-vazio-icone">📊</span>
+    <svg class="grafico-vazio-icone" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
     <p>Nenhum dado para exibir ainda.</p>
   </div>
 </ng-template>

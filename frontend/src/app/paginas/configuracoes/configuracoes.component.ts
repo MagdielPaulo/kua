@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ConfiguracaoService, Configuracao, Moeda } from '../../servicos/configuracao.service';
+import { ConfiguracaoService, Configuracao, Moeda, Tema } from '../../servicos/configuracao.service';
 import { AssinaturaService } from '../../servicos/assinatura.service';
 import { Assinatura } from '../../modelos/assinatura.model';
 
@@ -32,8 +32,14 @@ export class ConfiguracoesComponent implements OnInit {
     this.config = this.configuracaoService.get();
   }
 
+  alterarTema(tema: Tema): void {
+    this.config.tema = tema;
+    this.configuracaoService.aplicarTema(tema);
+  }
+
   salvar(): void {
     this.configuracaoService.salvar(this.config);
+    this.configuracaoService.aplicarTema(this.config.tema);
     this.salvo = true;
     setTimeout(() => { this.salvo = false; }, 2500);
   }

@@ -1,7 +1,3 @@
-/**
- * Ponto de entrada do servidor Kua
- * Configura o Express com os middlewares necessários e registra as rotas da API.
- */
 const express = require('express');
 const cors    = require('cors');
 require('dotenv').config();
@@ -48,7 +44,7 @@ app.use((err, req, res, _next) => {
 
 // ─── Inicialização ──────────────────────────────────────────
 app.listen(PORTA, () => {
-  console.log(`🐺 Kua Backend rodando na porta ${PORTA}`);
+  console.log(`Kua Backend rodando na porta ${PORTA}`);
   console.log(`   Acesse: http://localhost:${PORTA}/api/saude`);
   console.log(`   CORS permitido para: ${origemPermitida}`);
 });

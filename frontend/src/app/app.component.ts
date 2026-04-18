@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 
+import { ConfiguracaoService } from './servicos/configuracao.service';
+
 @Component({
   selector:    'app-root',
   templateUrl: './app.component.html',
@@ -11,10 +13,14 @@ export class AppComponent implements OnInit {
   sidebarCollapsed  = false;
   menuMobileAberto  = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private configuracaoService: ConfiguracaoService,
+  ) {}
 
   ngOnInit(): void {
-    // Fecha o menu mobile ao navegar
+    this.configuracaoService.aplicarTema(this.configuracaoService.tema);
+
     this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
@@ -23,7 +29,6 @@ export class AppComponent implements OnInit {
         sidebar?.classList.remove('mobile-open');
       });
 
-    // Restaura estado do sidebar do localStorage
     const saved = localStorage.getItem('kua_sidebar_collapsed');
     if (saved !== null) this.sidebarCollapsed = saved === 'true';
   }

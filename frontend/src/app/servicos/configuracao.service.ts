@@ -33,6 +33,10 @@ export class ConfiguracaoService {
     localStorage.setItem(this.CHAVE, JSON.stringify({ ...atual, ...config }));
   }
 
+  aplicarTema(tema: Tema): void {
+    document.body.classList.toggle('tema-claro', tema === 'light');
+  }
+
   get moeda(): Moeda   { return this.get().moeda; }
   get tema():  Tema    { return this.get().tema; }
 

@@ -2,7 +2,8 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, Hos
 import { Router } from '@angular/router';
 
 import { AssinaturaService }             from '../../servicos/assinatura.service';
-import { Assinatura, COR_POR_CATEGORIA } from '../../modelos/assinatura.model';
+import { Assinatura } from '../../modelos/assinatura.model';
+import { COR_POR_CATEGORIA } from '../../modelos/assinatura.dados';
 
 @Component({
   selector:    'app-dashboard',
@@ -28,6 +29,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   sparklineAnualArea   = '';
   sparklineAtivosLine  = '';
   sparklineAtivosArea  = '';
+
+  // Area Chart overlay
+  overlayAberto: 'mensal' | 'anual' | 'ativos' | null = null;
+  areaChartLineMensal = '';
+  areaChartAreaMensal = '';
+  areaChartTicks: { label: string; x: number }[] = [];
+  areaChartValorTicks: { label: string; y: number }[] = [];
 
   @ViewChild('canvas3d') private canvasRef?: ElementRef<HTMLCanvasElement>;
 
@@ -154,6 +162,51 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     [this.sparklineMensalLine, this.sparklineMensalArea]  = this.calcSparkline(pontosM);
     [this.sparklineAnualLine,  this.sparklineAnualArea]   = this.calcSparkline(pontosA);
     [this.sparklineAtivosLine, this.sparklineAtivosArea]  = this.calcSparkline(pontosC);
+
+    this.gerarAreaChart(pontosM);
+  }
+
+  private gerarAreaChart(pontos: number[]): void {
+    const W = 560, H = 160;
+    const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul'];
+    const step  = W / (pontos.length - 1);
+    const min   = Math.min(...pontos);
+    const max   = Math.max(...pontos) || 1;
+    const range = max - min;
+
+    const coords = pontos.map((p, i) => ({
+      x: i * step,
+      y: H - ((p - min) / range) * (H - 16) - 8,
+    }));
+
+    const line = coords.map((p, i) => {
+      if (i === 0) return `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+      const prev = coords[i - 1];
+      const cx = (prev.x + p.x) / 2;
+      return `C ${cx.toFixed(1)} ${prev.y.toFixed(1)}, ${cx.toFixed(1)} ${p.y.toFixed(1)}, ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+    }).join(' ');
+
+    this.areaChartLineMensal = line;
+    this.areaChartAreaMensal = `${line} L ${W} ${H} L 0 ${H} Z`;
+
+    this.areaChartTicks = pontos.map((_, i) => ({
+      label: meses[i] || `M${i+1}`,
+      x: i * step,
+    }));
+
+    const valorTicks = 4;
+    this.areaChartValorTicks = Array.from({ length: valorTicks }, (_, i) => {
+      const v = min + (range / (valorTicks - 1)) * i;
+      return { label: this.formatarMoeda(v), y: H - ((v - min) / range) * (H - 16) - 8 };
+    });
+  }
+
+  abrirOverlay(tipo: 'mensal' | 'anual' | 'ativos'): void {
+    this.overlayAberto = tipo;
+  }
+
+  fecharOverlay(): void {
+    this.overlayAberto = null;
   }
 
   private calcSparkline(pts: number[], w = 120, h = 36): [string, string] {

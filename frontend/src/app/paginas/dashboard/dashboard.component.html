@@ -19,7 +19,7 @@
 
   <!-- ── Erro ─────────────────────────────────────────────── -->
   <div *ngIf="!carregando && mensagemErro" class="glass-alert-error reveal-item">
-    <span class="alert-icon">⚠</span>
+    <svg class="alert-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     <span>{{ mensagemErro }}</span>
     <button class="btn btn-secundario" (click)="carregarDados()">Tentar novamente</button>
   </div>
@@ -44,7 +44,7 @@
         *ngFor="let trial of trialsExpirandoLogo"
         class="alerta-trial"
         [ngClass]="classeTrial(calcularDiasParaExpirar(trial.data_fim_trial!))">
-        <span class="alerta-icone">🔔</span>
+        <svg class="alerta-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <div class="alerta-texto">
           <strong>{{ trial.nome }}</strong>
           <ng-container [ngSwitch]="calcularDiasParaExpirar(trial.data_fim_trial!)">
@@ -61,7 +61,8 @@
     <div class="grade-resumo">
 
       <!-- Card 1: Total Mensal -->
-      <div class="metric-card reveal-item" style="--delay:.12s">
+      <div class="metric-card reveal-item metric-card--clickable" style="--delay:.12s"
+           (click)="abrirOverlay('mensal')" title="Clique para ver gráfico detalhado">
         <div class="metric-top-bar" style="background:linear-gradient(90deg,transparent,#22d3ee,transparent)"></div>
         <div class="metric-inner-glow" style="--glow-color:rgba(34,211,238,.12)"></div>
         <div class="metric-content">
@@ -84,7 +85,8 @@
       </div>
 
       <!-- Card 2: Projeção Anual -->
-      <div class="metric-card reveal-item" style="--delay:.18s">
+      <div class="metric-card reveal-item metric-card--clickable" style="--delay:.18s"
+           (click)="abrirOverlay('anual')" title="Clique para ver projeção">
         <div class="metric-top-bar" style="background:linear-gradient(90deg,transparent,#818cf8,transparent)"></div>
         <div class="metric-inner-glow" style="--glow-color:rgba(129,140,248,.10)"></div>
         <div class="metric-content">
@@ -191,5 +193,82 @@
 
     </ng-container>
   </ng-container>
+
+  <!-- ── Area Chart Modal Overlay ─────────────────────────── -->
+  <div *ngIf="overlayAberto" class="chart-overlay-backdrop" (click)="fecharOverlay()">
+    <div class="chart-overlay-panel" (click)="$event.stopPropagation()">
+
+      <div class="overlay-header">
+        <h3 class="overlay-titulo">
+          <ng-container *ngIf="overlayAberto === 'mensal'">Evolução do Gasto Mensal</ng-container>
+          <ng-container *ngIf="overlayAberto === 'anual'">Projeção Anual Acumulada</ng-container>
+        </h3>
+        <button class="btn-fechar-overlay" (click)="fecharOverlay()">✕</button>
+      </div>
+
+      <div class="overlay-valor-destaque">
+        <span *ngIf="overlayAberto === 'mensal'" class="overlay-valor cyan">
+          {{ formatarMoeda(custoMensalTotal) }}
+        </span>
+        <span *ngIf="overlayAberto === 'anual'" class="overlay-valor indigo">
+          {{ formatarMoeda(custoAnualProjetado) }}
+        </span>
+        <span class="overlay-valor-label">
+          {{ overlayAberto === 'mensal' ? 'total mensal estimado' : 'projeção para 12 meses' }}
+        </span>
+      </div>
+
+      <div class="area-chart-container">
+        <svg class="area-chart-svg" viewBox="0 0 560 160" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ov-grad-mensal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#22d3ee" stop-opacity=".4"/>
+              <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="ov-grad-anual" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#818cf8" stop-opacity=".4"/>
+              <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="40"  x2="560" y2="40"  stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+          <line x1="0" y1="80"  x2="560" y2="80"  stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+          <line x1="0" y1="120" x2="560" y2="120" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+
+          <ng-container *ngIf="overlayAberto === 'mensal'">
+            <path [attr.d]="areaChartAreaMensal" fill="url(#ov-grad-mensal)"/>
+            <path [attr.d]="areaChartLineMensal" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+          </ng-container>
+          <ng-container *ngIf="overlayAberto === 'anual'">
+            <path [attr.d]="areaChartAreaMensal" fill="url(#ov-grad-anual)"/>
+            <path [attr.d]="areaChartLineMensal" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"/>
+          </ng-container>
+
+          <g *ngFor="let tick of areaChartTicks">
+            <text [attr.x]="tick.x" y="158" text-anchor="middle"
+                  font-size="9" fill="rgba(255,255,255,.35)" font-family="sans-serif">
+              {{ tick.label }}
+            </text>
+          </g>
+        </svg>
+      </div>
+
+      <div *ngIf="Object.keys(gastosPorCategoria).length > 0" class="overlay-categorias">
+        <p class="overlay-cat-titulo">Composição por Categoria</p>
+        <div class="overlay-cat-lista">
+          <div *ngFor="let cat of Object.keys(gastosPorCategoria)" class="overlay-cat-item">
+            <span class="overlay-cat-dot" [style.background]="corDaCategoria(cat)"></span>
+            <span class="overlay-cat-nome">{{ cat }}</span>
+            <span class="overlay-cat-valor">{{ formatarMoeda(gastosPorCategoria[cat]) }}</span>
+            <div class="overlay-cat-bar">
+              <div class="overlay-cat-fill"
+                   [style.width.%]="(gastosPorCategoria[cat] / custoMensalTotal) * 100"
+                   [style.background]="corDaCategoria(cat)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 </div>

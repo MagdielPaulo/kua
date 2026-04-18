@@ -315,6 +315,14 @@ a:hover { color: var(--acento-hover); }
   margin: 1.5rem 0;
 }
 
+/* ── Feature Locked (RBAC Directive) ──────────────────── */
+.feature-locked {
+  position: relative;
+  opacity: .4;
+  pointer-events: none;
+  filter: blur(1.5px);
+}
+
 /* Scrollbar customizada */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-primario); }
@@ -328,4 +336,217 @@ a:hover { color: var(--acento-hover); }
 ::selection {
   background-color: rgba(0, 212, 255, 0.2);
   color: var(--texto-primario);
+}
+
+/* ─── Tema Claro ──────────────────────────────────────────── */
+body.tema-claro {
+  --bg-primario:      #f8fafc;
+  --bg-secundario:    #f1f5f9;
+  --bg-terciario:     #e2e8f0;
+  --bg-input:         #ffffff;
+
+  --borda:            rgba(15, 23, 42, 0.10);
+  --borda-foco:       #0891b2;
+
+  --texto-primario:   #0f172a;
+  --texto-secundario: #475569;
+  --texto-terciario:  #94a3b8;
+
+  --acento:           #0891b2;
+  --acento-hover:     #0e7490;
+  --acento-glow:      rgba(8, 145, 178, 0.15);
+
+  --sombra:      0 4px 24px rgba(0, 0, 0, 0.06);
+  --sombra-glow: 0 0 20px rgba(8, 145, 178, 0.05);
+
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(8, 145, 178, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 90% 100%, rgba(99, 102, 241, 0.03) 0%, transparent 55%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #0f172a;
+}
+
+body.tema-claro .card {
+  background: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04), 0 4px 20px rgba(0,0,0,.05);
+}
+
+body.tema-claro .card:hover {
+  border-color: rgba(8, 145, 178, 0.20);
+  box-shadow: 0 2px 8px rgba(0,0,0,.06), 0 8px 28px rgba(0,0,0,.07), 0 0 0 1px rgba(8,145,178,.06);
+}
+
+body.tema-claro .btn-secundario {
+  background-color: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: var(--texto-primario);
+}
+
+body.tema-claro .btn-secundario:hover {
+  background-color: var(--bg-terciario);
+  border-color: rgba(8, 145, 178, 0.25);
+}
+
+body.tema-claro .campo-form input,
+body.tema-claro .campo-form select,
+body.tema-claro .campo-form textarea {
+  background-color: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+}
+
+body.tema-claro .campo-form input::placeholder,
+body.tema-claro .campo-form textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.tema-claro ::-webkit-scrollbar-track { background: #f1f5f9; }
+
+/* ─── Tema Claro: Textos Gradiente ───────────────────────── */
+body.tema-claro .titulo-pagina {
+  background: linear-gradient(135deg, #0f172a 30%, #0891b2 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.tema-claro .gradient-cyan {
+  background: linear-gradient(135deg, #0c4a6e 0%, #0891b2 55%, #22d3ee 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.tema-claro .gradient-indigo {
+  background: linear-gradient(135deg, #312e81 0%, #4338ca 55%, #6366f1 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.tema-claro .gradient-emerald {
+  background: linear-gradient(135deg, #064e3b 0%, #059669 55%, #10b981 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+body.tema-claro .total-valor {
+  background: linear-gradient(90deg, #0891b2, #0c4a6e) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* ─── Tema Claro: Cards e Componentes ─────────────────────── */
+body.tema-claro .metric-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid rgba(15, 23, 42, 0.09) !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,.05), 0 4px 20px rgba(0,0,0,.04) !important;
+}
+
+body.tema-claro .metric-card:hover {
+  border-color: rgba(8, 145, 178, 0.22) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07), 0 8px 28px rgba(0,0,0,.06) !important;
+}
+
+body.tema-claro .card-assinatura {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.tema-claro .glass-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.tema-claro .estado-vazio-glass {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(15, 23, 42, 0.07) !important;
+}
+
+/* ─── Tema Claro: Texto e Labels ──────────────────────────── */
+body.tema-claro .metric-label,
+body.tema-claro .metric-desc,
+body.tema-claro .grafico-subtitulo,
+body.tema-claro .subtitulo-pagina {
+  color: var(--texto-terciario) !important;
+}
+
+body.tema-claro .section-title-lg,
+body.tema-claro .config-label,
+body.tema-claro .detalhe-titulo,
+body.tema-claro .grafico-titulo,
+body.tema-claro .card-nome {
+  color: var(--texto-primario) !important;
+}
+
+/* ─── Tema Claro: Alertas de Trial ───────────────────────── */
+body.tema-claro .alerta-trial {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ─── Tema Claro: Detalhe do Gráfico ──────────────────────── */
+body.tema-claro .detalhe-categoria {
+  border-top-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.tema-claro .detalhe-item {
+  background: rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(15, 23, 42, 0.07) !important;
+}
+
+body.tema-claro .detalhe-item:hover {
+  background: rgba(8, 145, 178, 0.05) !important;
+}
+
+body.tema-claro .detalhe-pct {
+  background: rgba(15, 23, 42, 0.05) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.tema-claro .detalhe-fechar {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* ─── Tema Claro: Sugestões Dropdown ──────────────────────── */
+body.tema-claro .sugestoes-dropdown {
+  background: #ffffff !important;
+  border-color: rgba(8, 145, 178, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12) !important;
+}
+
+body.tema-claro .sugestao-item {
+  color: var(--texto-primario) !important;
+  border-bottom-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+body.tema-claro .sugestao-item:hover {
+  background-color: rgba(8, 145, 178, 0.06) !important;
+}
+
+/* ─── Tema Claro: Seção Trial Toggle ──────────────────────── */
+body.tema-claro .secao-trial {
+  background-color: rgba(8, 145, 178, 0.04) !important;
+  border-color: rgba(8, 145, 178, 0.15) !important;
+}
+
+/* ─── Tema Claro: Barra de Alerta ────────────────────────── */
+body.tema-claro .glass-alert-error {
+  background: rgba(244, 63, 94, 0.06) !important;
+  border-color: rgba(244, 63, 94, 0.2) !important;
+}
+
+/* ─── Tema Claro: Overlay do Gráfico ─────────────────────── */
+body.tema-claro .chart-overlay-backdrop {
+  background: rgba(248, 250, 252, 0.8) !important;
+}
+
+body.tema-claro .chart-overlay-panel {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 8px 48px rgba(0,0,0,.12) !important;
 }
